@@ -6,6 +6,8 @@
     <title>Feature Overview</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
+<!-- ================= Navigation ================= -->
 <body>
     <header class="navbar-wrapper">
         <nav class="navbar">
@@ -14,23 +16,75 @@
                 <h2>Glucare</h2>
             </a>
             <ul class="links">
-                <li><a href="LandingPage.html">Home</a></li>
-                <li><a href="Aboutpage.html">About</a></li>
-                <li><a href="FeaturedOverview.html">Feature Overview</a></li>
-                <li><a href="HowitWorksPage.html" class="active">How it Works</a></li>
-                <li><a href="ContactUsPage.html">Contact Us</a></li>
+                <li><a href="LandingPage.html">Beranda</a></li>
+                <li><a href="Aboutpage.html">Tentang Kami</a></li>
+                <li><a href="FeaturedOverview.html">Fitur Utama</a></li>
+                <li><a href="HowitWorksPage.html" class="active">Cara Kerja</a></li>
+                <li><a href="ContactUsPage.html">Hubungi Kami</a></li>
             </ul>
             <a href="#" class="login">
             <img src="Images/logo_login.png" alt="Login">
-            <span>Login</span>
+            <span>Masuk</span>
         </a>
-
-            
-            </div>
-            </nav>
         </nav>
-
     </header>
-    
+
+    <!-- ================= How It Works ================= -->
+    <section class="cara-kerja">
+        <h2>Bagaimana Cara Kerja Glucare?</h2>
+        <p class="penjelasan">
+            Sistem kami membantu Anda memahami risiko pra-diabetes dengan menganalisis data kesehatan Anda dan memberikan rekomendasi gaya hidup yang dipersonalisasi.
+        </p>
+
+        <div class="steps">
+
+            <!---STEP 1-->
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Masukkan Data Kesehatan Anda</h3>
+                <p>Isi informasi kesehatan Anda seperti usia, berat badan, riwayat keluarga, dan kebiasaan hidup untuk mendapatkan penilaian risiko yang akurat.</p>
+                <img src="Images/how-it0works/Enter-Health-Data.png" alt="Enter Health Data">
+            </div>
+
+        <!---STEP 2-->
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Analisis Risiko</h3>
+                <p>Sistem kami akan menganalisis data kesehatan Anda untuk menilai risiko pra-diabetes berdasarkan berbagai faktor.</p>
+                <img src="Images/how-it0works/Risk-Analisis.png" alt="Analyze Risk">
+            </div>
+
+        <!---STEP 3-->
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Terima Rekomendasi Gaya Hidup</h3>
+                <p>Berdasarkan hasil analisis, Anda akan menerima rekomendasi gaya hidup yang dipersonalisasi untuk mengurangi risiko pra-diabetes.</p>
+                <img src="Images/how-it0works/Health-Insight.png" alt="Lifestyle Recommendations">
+            </div>
+
+        <!---STEP 4-->
+            <div class="step">
+                <div class="step-number">4</div>
+                <h3>Meningkatkan Gaya Hidup</h3>
+                <p>Dapatkan rekomendasi pribadi untuk pola makan yang lebih sehat, olahraga, dan kebiasaan sehari-hari.</p>
+                <img src="Images/how-it0works/Improve-Lifestyle.png" alt="Follow Recommendations">
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= CTA ================= -->
+    <section class="cta">
+        <div class="cta-container">
+            <h2>Program Kesehatan yang Dibuat Khusus untuk Anda</h2>
+            <a href="#" class="btn primary">Cek Risiko Anda</a>
+        </div>
+    </section>
+
+    <!-- ================= FOOTER ================= -->
+    <div id="footer"></div>
+
+
+    <!-- JS -->
+    <script src="script.js"></script>
 </body>
 </html>

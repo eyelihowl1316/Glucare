@@ -6,6 +6,8 @@
     <title>Feature Overview</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
+<!-- ================= Navigation ================= -->
 <body>
     <header class="navbar-wrapper">
         <nav class="navbar">
@@ -14,23 +16,66 @@
                 <h2>Glucare</h2>
             </a>
             <ul class="links">
-                <li><a href="LandingPage.html">Home</a></li>
-                <li><a href="Aboutpage.html">About</a></li>
-                <li><a href="FeaturedOverview.html" class="active">Feature Overview</a></li>
-                <li><a href="HowitWorksPage.html">How it Works</a></li>
-                <li><a href="ContactUsPage.html">Contact Us</a></li>
+                <li><a href="LandingPage.html">Beranda</a></li>
+                <li><a href="Aboutpage.html">Tentang Kami</a></li>
+                <li><a href="FeaturedOverview.html" class="active">Fitur Utama</a></li>
+                <li><a href="HowitWorksPage.html">Cara Kerja</a></li>
+                <li><a href="ContactUsPage.html">Hubungi Kami</a></li>
             </ul>
             <a href="#" class="login">
             <img src="Images/logo_login.png" alt="Login">
-            <span>Login</span>
+            <span>Masuk</span>
         </a>
-
-            
-            </div>
-            </nav>
         </nav>
-
     </header>
-    
+
+    <!-- ================= Feature Overview ================= -->
+    <section class = "fitur-utama">
+        <h2>Fitur Kami yang Membantu Anda Tetap Sehat</h2>
+
+        <!---Fitur 1--->
+        <div class="fitur-item">
+            <div class="text">
+                <h3>Penilaian Risiko Berbasis AI</h3>
+                <p>AI kami akan membantu Anda mendiagnosis risiko apa pun dari karakteristik terkena atau mendapatkan pradiabetes akibat diabetes</p>
+            </div>
+
+            <img src="Images/aboutimages/AiRisk.png" alt="fitur1">
+        </div>
+
+        <!---Fitur 2--->
+        <div class="fitur-item reverse">
+            <div class="text">
+                <h3>Rekomendasi</h3>
+                <p>AI kami akan memberikan rekomendasi sehat atau tips tentang kesehatan untuk mencegah pengguna dari diabetes</p>
+            </div>
+
+            <img src="Images/aboutimages/Rekomendasi.png" alt="fitur1">
+        </div>
+
+        <!---Fitur 2--->
+        <div class="fitur-item">
+            <div class="text">
+                <h3>Rencana 90 Hari</h3>
+                <p>AI kami akan memberikan Anda rencana 90 hari untuk kegiatan hidup sehat guna mencegah diabetes.</p>
+            </div>
+            <img src="Images/aboutimages/90hari.png" alt="fitur1">
+        </div>
+    </section>
+
+    <!-- ================= CTA ================= -->
+    <section class="cta">
+        <div class="cta-container">
+            <h2>Program Kesehatan yang Dibuat Khusus untuk Anda</h2>
+            <a href="#" class="btn primary">Cek Risiko Anda</a>
+        </div>
+    </section>
+
+    <!-- ================= FOOTER ================= -->
+    <div id="footer"></div>
+
+
+    <!-- JS -->
+    <script src="script.js"></script>
 </body>
 </html>
