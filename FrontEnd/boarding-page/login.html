@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Masuk</title>
+    <link rel="stylesheet" href="/FrontEnd/assets/auth.css">
+    <link rel="stylesheet" href="/FrontEnd/assets/navbar.css">
+</head>
+<body>
+    <div id="navbar"></div>
+
+    <div class="login-container" id="login-container">
+        <div class="form-container daftar">
+            <form id="signupForm">
+                <h1>Buat Akun</h1>
+                <p>Gunakan akun email anda untuk registrasi</p>
+                <input type="text" id="signupName" placeholder="Nama" required>
+                <input type="email" id="signupEmail" placeholder="Email" required>
+                <input type="password" id="signupPassword" placeholder="Kata Sandi" required>
+
+                <div class="form-options-daftar">
+                    <label class="agree">
+                        <input type="checkbox" id="agree" required> 
+                        <span>
+                            Saya menyetuji
+                            <span class="link" id="openTerm">
+                                Kebijakan Privasi & Syarat Ketentuan                       
+                            </span>
+                        </span>          
+                    </label>
+                </div>
+
+                <button>Daftar</button>
+            </form>
+        </div>
+
+        <div class="form-container masuk">
+            <form id="loginForm">
+                <h1>Masuk</h1>
+                <p>Gunakan akun email untuk masuk</p>
+                <input type="email" id="loginEmail" placeholder="Email" required>
+                <input type="password" id="loginPassword" placeholder="Kata-Sandi" required>
+                
+                <div class="form-options">
+                    <label class="ingatkanSaya">
+                        <input type="checkbox" id="ingatkanSaya"> Ingatkan saya
+                    </label>
+                <a href="#">Lupa Kata Sandi?</a>
+                </div>
+                <button type="submit">Masuk</button>
+            </form>
+        </div>
+
+        <div class="toggle-container">
+            <div class="toggle">
+                <div class="toggle-panel toggle-left">
+                    <h1>Selamat Datang Kembali</h1>
+                    <p>Sudah memiliki akun?<br>Gunakan email anda untuk masuk</p>
+                    <button class="hidden" id="masuk">Masuk</button>
+                </div>
+                <div class="toggle-panel toggle-right">
+                    <h1>Halo, teman!</h1>
+                    <p>Belum memiliki akun?<br>Gunakan email anda untuk registrasi</p>
+                    <button class="hidden" id="daftar">Daftar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="termModal">
+        <div class="modal-content">
+            <span class="close" id="closeTerm">&times;</span>
+            <h2>Kebijakan Privasi & Syarat Ketentuan</h2>
+
+            <div class="modal-scroll">
+                <h3>Kebijakan Privasi</h3>
+                <p>Kami menghargai privasi Anda.Informasi yang kami kumpukan:</p>
+                <ul>
+                    <li>Data akun (Nama, Email)</li>
+                    <li>Data pengguna aplikasi</li>
+                </ul><br>
+
+                <p>Kami menggunakan data untuk:</p>
+                <ul>
+                    <li>1. Meningkatkan Layanan</li>
+                    <li>2. Memberikan pengalaman pengguna lebih baij</li>
+                </ul> <br>
+
+                <h3>Syarat & Ketentuan</h3>
+                <p>Dengan menggunakan aplikasi ini,Anda setuju untuk:</p>
+                <ul>
+                    <li>1. Tidak menyalahgunakan layanan</li>
+                    <li>2. Tidak melanggar hukum</li>
+                    <li>3. Menjaga keamanan akun</li>
+                </ul> <br>
+
+                <p>Kami berhak:</p>
+                <ul>
+                    <li>1. Menghapus akun jika anda melanggar aturan</li>
+                    <li>2. Mengubah layanan sewaktu-waktu</li>
+                </ul>
+
+                <p style="margin-top:20px";>Terakhir diperbarui 29-03-2026</p>
+            </div>
+        </div>
+    </div>
+
+<script src="/FrontEnd/assets/auth.js" defer></script>
+<script src="/FrontEnd//assets/main.js"></script>
+
+</body>
+</html>

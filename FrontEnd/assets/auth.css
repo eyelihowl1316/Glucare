@@ -1,0 +1,279 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+body {
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    margin-top: 50px;
+    
+}
+
+.login-container {
+    background-color: white;
+    border-radius: 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    position:fixed;
+    overflow: hidden;
+    width: 90vw;
+    max-width: 1200px;
+    height: 85vh;
+    -webkit-border-radius: 40px;
+    -moz-border-radius: 40px;
+    -ms-border-radius: 40px;
+    -o-border-radius: 40px;
+}
+
+.login-container p{
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.3px;
+    margin: 20px 0;
+}
+
+.login-container button {
+    background-color:#0072CE;
+    color: white;
+    font-size: 16px;
+    padding: 10px 45px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-weight: 600;
+    letter-spacing: 0.5;
+    text-transform:uppercase ;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.login-container button.hidden{
+    background-color: white;
+    color: black;
+    font-weight: 700;
+}
+
+.login-container button:hover{
+    background: linear-gradient(to right, #0072CE, #003A68);
+}
+
+.login-container button.hidden:hover {
+    background: linear-gradient(90deg, #FFF -4.39%, #0072CE 100%);
+}
+
+.login-container form {
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 40px;
+    height: 100%;
+}
+
+.login-container input {
+    background-color: #eee;
+    border: none;
+    margin: 8px 0;
+    padding: 10px 15px;
+    font-size: 13px;
+    border-radius: 8px;
+    width: 100%;
+    outline: none;
+
+}
+
+.form-container{
+    position: absolute;
+    top: 0;
+    height: 100%;
+    transition: all 0.6s ease-in-out;
+}
+
+.masuk{
+    left: 0;
+    width: 50%;
+    z-index: 2;
+}
+
+.form-options {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 10px 0;
+}
+
+.ingatkanSaya {
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.form-options a{
+    font-size: 12px;
+    text-decoration: none;
+}
+
+.login-container.active .masuk{
+    transform: translateX(100%);
+}
+
+.daftar{
+    left: 0;
+    width: 50%;
+    opacity: 0;
+    z-index: 1;
+}
+
+.form-options-daftar {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.form-options-daftar input[type="checkbox"] {
+    width: auto; /* 🔥 BALIKIN NORMAL */
+    margin: 0;
+}
+
+.link{
+    color: blue;
+    cursor: pointer;
+    text-decoration: underline;
+    margin-left: 4px;
+}
+
+.agree {
+    font-size: 12px;
+    display:flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.agree span{
+    display: inline;
+}
+
+
+.login-container.active .daftar{
+    transform:translateX(100%);
+    opacity: 1;
+    z-index: 5;
+    animation: move 0.6s;
+}
+
+@keyframes move{
+    0%, 49.99%{
+        opacity: 0;
+        z-index: 1;
+    }
+    50%, 100%{
+        opacity: 1;
+        z-index: 5;
+    }
+} 
+
+.toggle-container {
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    overflow: hidden;
+    transition: all 0.6s ease-in-out;
+    z-index: 1000;
+}
+
+.login-container.active .toggle-container{
+    transform: translateX(-100%);
+}
+
+.toggle{
+    background-color: #0072CE;
+    height: 100%;
+    background: linear-gradient(to bottom, #0072CE,#003A68);
+    color: white;
+    position: relative;
+    left: -100%;
+    height: 100%;
+    width: 200%;
+    transform: translateX(0);
+    transition: all 0.6s ease-in-out;
+}
+
+.login-container.active .toggle{
+    transform: translateX(50%);
+}
+
+.toggle-panel{
+    position: absolute;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0 30px;
+    text-align: center;
+    top: 0%;
+    transform: translateX(0);
+}
+
+.toggle-left{
+    transform: translateX(-200%);
+}
+
+.login-container.active .toggle-left{
+    transform: translateX(0);
+}
+
+.toggle-right{
+    right: 0;
+    transform: translateX(0);
+}
+
+.login-container.active .toggle-right{
+    transform: translateX(200%);
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background: white;
+    width: 400px;
+    max-width: 90%;
+    max-height: 80vh; 
+    margin: auto;
+    margin-top: 5%;
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.modal-scroll {
+    overflow-y: auto;
+    margin-top: 10px;
+    padding-right: 5px;
+}
+
+
+.close {
+    position: absolute;
+    right: 15px;
+    top: 10px;
+    font-size: 20px;
+    cursor: pointer;
+}
