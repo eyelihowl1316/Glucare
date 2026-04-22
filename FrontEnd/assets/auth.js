@@ -46,15 +46,13 @@ loginForm.addEventListener("submit", function(e) {
     );
 
     if (user) {
-        alert("Login berhasil!");
-
         if (ingatkanSaya) {
             localStorage.setItem("currentUser", JSON.stringify(user));
         } else {
             sessionStorage.setItem("currentUser", JSON.stringify(user));
         }
 
-        window.location.href = "#";
+        window.location.href = "http://localhost:5175/";
     } else {
         alert("Email atau password salah"); 
     }
