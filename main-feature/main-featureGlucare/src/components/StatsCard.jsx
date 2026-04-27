@@ -1,8 +1,8 @@
-export default function StatsCards_90Day() {
+export default function StatsCard({ fromColor, toColor }) {
     const stats = [
-    { id:1, icon:"🔥", value:"1 hari", label:"Streak" },
-    { id:2, icon:"⚡", value:"8", label:"Level" },
-    { id:3, icon:"🏅", value:"4", label:"Pencapaian" },
+        { id:1, icon:"🔥", value:"1 hari", label:"Streak" },
+        { id:2, icon:"⚡", value:"8", label:"Level" },
+        { id:3, icon:"🏅", value:"4", label:"Pencapaian" },
     ];
 
     return (
@@ -10,7 +10,7 @@ export default function StatsCards_90Day() {
             {stats.map(item => (
                 <div
                     key={item.id}
-                    className="bg-gradient-to-br from-[#0072CE] to-[#003A68] text-white rounded-2xl p-5 shadow-sm"
+                    className={`bg-gradient-to-br ${fromColor} ${toColor} text-white rounded-2xl p-5 shadow-sm`}
                 >
                     <div className="text-xl">{item.icon}</div>
                     <p className="text-xl font-bold mt-2">{item.value}</p>

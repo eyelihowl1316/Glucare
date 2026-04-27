@@ -3,7 +3,7 @@ import HeaderAnalisis from "../components/HeaderAnalisis";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../hooks/useSidebar";
-import StatsCards_90Day from '../components/StatsCard_90Day';
+import StatsCard from "../components/StatsCard";
 import TargetHariIni from '../components/TargetHariIni';
 import FaseIntervensi from '../components/FaseIntevensi';
 import TaskList from '../components/TaskList';
@@ -15,17 +15,19 @@ export default function Rencana90Hari() {
     const { isOpen } = useSidebar();
 
     return (
-        <div className="flex min-h-screen bg-white">
+        <div className="flex min-h-screen bg-gray-50">
             <Sidebar />
 
-            <div className={`flex-1 transition-colors duration-300 ${isOpen ? 'lg:ml-60' : 'lg:ml-24'}`}>
+            <div className={`flex-1 transition-all duration-300 ${isOpen ? 'lg:ml-60' : 'lg:ml-24'}`}>
                 <HeaderAnalisis
                     title="Rencana 90 Hari"
                     subtitle="Pantau intervensi metabolik harianmu"
                 />
 
                 <div className="px-8 lg:px-12 py-8 space-y-8">
-                    <StatsCards_90Day />
+                    <StatsCard 
+                        fromColor="from-[#0072CE]"
+                        toColor="to-[#003A68]" />
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 shadow-sm">

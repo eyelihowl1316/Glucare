@@ -23,6 +23,17 @@ function Sidebar() {
             );
         }
 
+        if (item.path === "/rencana") {
+            return (
+                location.pathname.includes("/rencana") ||
+                location.pathname.includes("/evaluasi") ||
+                location.pathname.includes("pencapaian") ||
+                location.pathname.includes("/stabilisasi") ||
+                location.pathname.includes("/optimasi") ||
+                location.pathname.includes("/konsolidasi")
+            );
+        }
+
         return location.pathname.startsWith(item.path);
     };
 

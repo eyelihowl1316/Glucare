@@ -7,6 +7,8 @@ import ModeLab from './pages/ModeLab';
 import LoadingAnalisis from './pages/LoadingAnalisis';
 import HasilAnalisis from './pages/HasilAnalisis';
 import Rencana90Hari from './pages/Rencana90-Hari';
+import Evaluasi from './pages/Evaluasi';
+import Pencapaian from './pages/Pencapaian';
 
 function App() {
 
@@ -20,6 +22,8 @@ function App() {
         <Route path="/loading" element={<LoadingAnalisis />}/>
         <Route path="/hasil" element={<HasilAnalisis />}/>
         <Route path="/rencana" element={<Rencana90Hari />}/>
+        <Route path="/evaluasi" element={<Evaluasi />}/>
+        <Route path="/pencapaian" element={<Pencapaian />}/>
 
       </Routes>  
   );
