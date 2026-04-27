@@ -52,7 +52,7 @@ loginForm.addEventListener("submit", function(e) {
             sessionStorage.setItem("currentUser", JSON.stringify(user));
         }
 
-        window.location.href = "http://localhost:5175/";
+        window.location.href = " http://localhost:5173/";
     } else {
         alert("Email atau password salah"); 
     }
