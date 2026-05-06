@@ -11,7 +11,7 @@ function Dashboard(){
     const riskData = null;
 
     const [streak, setStreak] = useState(0);
-    const [day, setDay] = useState(1);
+    const [day, setDay] = useState(0);
     
     const hour = new Date().getHours();
     let greeting ="Good Morning";
@@ -27,7 +27,7 @@ function Dashboard(){
         const start = new Date(data.startDate);
 
         const diffTime = today - start;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1;
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
         setDay(diffDays);
 
@@ -51,7 +51,7 @@ function Dashboard(){
                             </p>
 
                             <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-800 truncate">
-                                Halo, Nana 👋
+                                Halo, Na Jaemin 👋
                             </h2>
                         </div>
                     </div>

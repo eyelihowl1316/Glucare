@@ -27,10 +27,21 @@ function Sidebar() {
             return (
                 location.pathname.includes("/rencana") ||
                 location.pathname.includes("/evaluasi") ||
-                location.pathname.includes("pencapaian") ||
+                location.pathname.includes("/pencapaian") ||
                 location.pathname.includes("/stabilisasi") ||
                 location.pathname.includes("/optimasi") ||
                 location.pathname.includes("/konsolidasi")
+            );
+        }
+
+        if (item.path === "/pengaturan") {
+            return (
+                location.pathname.includes("/pengaturan") ||
+                location.pathname.includes("/editprofile") ||
+                location.pathname.includes("/ubahpassword") ||
+                location.pathname.includes("/informasiAplikasi") ||
+                location.pathname.includes("/bantuan-dan-dukungan") ||
+                location.pathname.includes("/privasi-layanan")
             );
         }
 
@@ -38,7 +49,7 @@ function Sidebar() {
     };
 
     const menu = [
-        { name: "Beranda", icon: <FaHome />, path: "/" },
+        { name: "Beranda", icon: <FaHome />, path: "/beranda" },
         { name: "Analisis", icon: <FaChartPie />, path: "/analisis" },
         { name: "Rencana 90 Hari", icon: <FaCalendar />, path: "/rencana" },
         { name: "Pengaturan", icon: <FaCog />, path: "/pengaturan" },
@@ -147,37 +158,35 @@ function Sidebar() {
                     ))}
                 </ul>
 
+                <Link
+                    to="/login"
+                    className="relative flex items-center h-12 px-4 rounded-lg font-bold hover:bg-white/20 text-sm text-white no-underline"
+                    onClick={() => {
+                        localStorage.removeItem("currentUser");
+                        sessionStorage.removeItem("currentUser");
 
-                
-                <div className="mt-auto mb-0">
-                    <button
-                        onClick={() => {
-                            localStorage.clear(); 
-                            window.location.href = "http://127.0.0.1:5500/FrontEnd/boarding-page/login.html"; 
-                        }}
-                        className="relative flex items-center h-12 px-4 rounded-lg font-bold hover:bg-white/20 text-sm text-white w-full"
-                    >
-                        <span className="w-6 flex justify-center text-lg flex-shrink-0">
-                            <FaSignOutAlt />
-                        </span>
+                        if (window.innerWidth < 1024) {
+                        setIsMobileMenuOpen(false);
+                        }
+                    }}>
+                    <span className="w-6 flex justify-center text-lg flex-shrink-0">
+                        <FaSignOutAlt />
+                    </span>
 
-                        <span
-                            className={`
-                                absolute left-12 whitespace-nowrap transition-all duration-200
-                                ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
-                            `}
-                        >
-                            Keluar
-                        </span>
-                    </button>
-                </div>
-
+                    <span
+                        className={`
+                        absolute left-12 whitespace-nowrap transition-all duration-200
+                        ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
+                        `}>
+                        Keluar
+                    </span>
+                </Link>
 
                 <div className="h-px bg-white/40 my-3"></div>
 
                 
                 <Link
-                    to="/profile"
+                    to="/pengaturan"
                     className="relative flex items-center h-16 px-2 text-white no-underline hover:bg-white/20 rounded-lg"
                     onClick={() => window.innerWidth < 1024 && setIsMobileMenuOpen(false)}
                 >
@@ -193,7 +202,7 @@ function Sidebar() {
                             ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
                         `}
                     >
-                        Nana
+                        Na Jaemin
                     </span>
                 </Link>
             </div>

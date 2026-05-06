@@ -67,7 +67,7 @@ export default function ModeLab() {
 
     const handleSubmit = () => {
         if (validateForm()) {
-            navigate("/loading");
+            navigate("/hasil");
         }
     };
 

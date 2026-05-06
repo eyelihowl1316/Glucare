@@ -49,6 +49,7 @@ export default function Kuesioner() {
 
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState({});
+    
 
     const handleSelect = (option) => {
         setAnswers({
