@@ -1,12 +1,37 @@
 import Sidebar from "../components/Sidebar";
 import HeaderAnalisis from "../components/HeaderAnalisis";
 import { useSidebar } from "../hooks/useSidebar";
-import Profile from "../assets/Profile.jpg"
+import defaultAvatar from "../assets/Profile.jpg"
 import ProfileCard from "../components/ProfileCard";
 import SettingCard from "../components/SettingCard";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 export default function SettingAndProfile() {
-    const { isOpen } = useSidebar();
+    const { isOpen } = useSidebar();  
+
+    const [profile, setProfile] = useState(null);
+    const [user, setUser] = useState(null);
+
+    const [seletedFile, setSelectedFile] = useState(null);
+
+    useEffect(() => {
+        const currentUser = JSON.parse(
+            localStorage.getItem("currentUser") ||
+            sessionStorage.getItem("currentUser")
+        );
+
+        if (!currentUser) return;
+
+        setUser(!currentUser);
+
+        axios
+            .get(`http://localhost:5000/api/auth/profile/${currentUser.id}`)
+            .then((response) => {
+                setProfile(response.data);
+            })
+            .catch((error) => console.log(error));
+    }, []);
     
     return (
         <div className="flex min-h-screen">
@@ -18,10 +43,10 @@ export default function SettingAndProfile() {
                         subtitle="Atur akun"/>
 
                         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-8 mt-4 pl-4 sm:pl-6 lg:pl-6 pr-4 sm:pr-6">
-                            <img src={Profile} alt="Profile" className="w-20 h-20 lg:w-24 lg:h-24 rounded-full object-cover flex-shrink-0"/>
+                            <img src={profile?.profile_image ? `http://localhost:5000${profile.profile_image}` : defaultAvatar} alt="Profile" className="w-20 h-20 lg:w-24 lg:h-24 rounded-full object-cover flex-shrink-0"/>
                             <div className="flex flex-col min-w-0 flex-1 max-w-full">
-                                <h2 className="text-3xl font-bold truncate">Na Jaemin</h2>
-                                <p className="text-xl text-gray-500 truncate">Najaemin0813@gmail.com</p>
+                                <h2 className="text-3xl font-bold truncate">{profile?.fullname || "Loading..."}</h2>
+                                <p className="text-xl text-gray-500 truncate">{profile?.email || "Loading..."}</p>
                             </div>
                         </div>
 

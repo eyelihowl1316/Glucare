@@ -20,6 +20,9 @@ import CaraKerja from './pages/CaraKerja';
 import HubungiKami from './pages/HubungiKami';
 import Auth from './pages/Auth';
 import InputData from './pages/InputData';
+import StabilisasiDasar from './pages/StabilisasiDasar';
+import OptimasiMetabolik from './pages/OptimasiMetabolik';
+import Konsolidasi from './pages/Konsolidasi';
 
 function App() {
 
@@ -46,6 +49,9 @@ function App() {
         <Route path="/rencana" element={<Rencana90Hari />}/>
         <Route path="/evaluasi" element={<Evaluasi />}/>
         <Route path="/pencapaian" element={<Pencapaian />}/>
+        <Route path="/stabilisasi" element={<StabilisasiDasar />}/>
+        <Route path="/optimasi" element={<OptimasiMetabolik />}/>
+        <Route path="/konsolidasi" element={<Konsolidasi />}/>
         <Route path="/pengaturan" element={<SettingAndProfile />}/>
         <Route path="/editprofile" element={<EditProfile />}/>
         <Route path="/bantuan-dan-dukungan" element={<BantuandanDukungan/>}/>

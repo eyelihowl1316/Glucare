@@ -1,4 +1,4 @@
-import heroImage from "../assets/HeroSection.jpg";
+import heroImage from "../assets/HeroSection.png";
 import { useNavigate } from "react-router-dom";
 
 export default function HeroSection() {
@@ -9,7 +9,7 @@ export default function HeroSection() {
             className="relative h-screen flex items-center bg-cover bg-center"
             style={{ backgroundImage: `url(${heroImage})` }}
         >
-            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 to-slate-900/60" />
+            <div className="absolute inset-0 bg-gradient-to-r from-slate-900/85 via-slate-900/60 to-slate-900/0" />
 
             <div className="relative z-10 text-white max-w-xl px-20">
                 <h1 className="text-5xl font-bold">Selamat Datang di Glucare</h1>

@@ -1,13 +1,30 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FaHome, FaList, FaCalendar, FaRobot, FaCog, FaBars, FaSignOutAlt, FaChartPie } from "react-icons/fa";
-import Profile from "../assets/Profile.jpg"
+import defaultProfile from "../assets/Profile.jpg"
 import { useSidebar } from "../hooks/useSidebar";
 
 function Sidebar() {
     const location = useLocation();
     const { isOpen, setIsOpen } = useSidebar();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
+
+    useEffect(() => {
+        const getUser = () => {
+            const user = JSON.parse(
+                localStorage.getItem("currentUser") ||
+                sessionStorage.getItem("currentUser")
+            );
+
+        setCurrentUser(user);
+    }; 
+
+    getUser();
+
+    window.addEventListener("focus", getUser);
+    return () => window.removeEventListener("focus", getUser);
+    }, [location.pathname]);
 
     const isMenuActive = (item) => {
         if (item.path === "/") {
@@ -192,7 +209,7 @@ function Sidebar() {
                 >
                     <img
                         className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                        src={Profile}
+                        src={currentUser?.profile_image ? `http://localhost:5000${currentUser.profile_image}` : defaultProfile}
                         alt="Profile"
                     />
 
@@ -202,7 +219,7 @@ function Sidebar() {
                             ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}
                         `}
                     >
-                        Na Jaemin
+                        {currentUser?.fullname || "User"}
                     </span>
                 </Link>
             </div>

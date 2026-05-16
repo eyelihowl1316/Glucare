@@ -1,0 +1,189 @@
+const db = require("../config/db");
+const bcrypt = require("bcrypt");
+
+const registerUser = async (req, res) => {
+    const { fullname, email, password } = req.body;
+
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const sql = "INSERT INTO users (fullname, email, password) VALUES (?, ?, ?)";
+
+        db.query(sql, [fullname, email, hashedPassword], (err, result) => {
+        if (err) {
+            console.log(err);
+            return res.status(500).json({ message: "Register gagal" });
+        }
+
+        res.status(201).json({
+            message: "Register berhasil",
+            user: {
+                id: result.insertId,
+                fullname,
+                email,
+            },
+        });
+    });
+    } catch (error) {
+    res.status(500).json({
+        message: error.message
+        });
+    }
+};
+
+const loginUser = (req, res) => {
+    const {email, password} = req.body;
+
+    const sql = "SELECT * FROM users WHERE email = ?";
+
+    db.query(sql, [email], async (err, result) => {
+        if (err) {
+            return res.status(500).json({message: "Server error"});
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: "User tidak ditemukan"});
+        }
+
+        const user = result[0];
+
+        const isMatch = await bcrypt.compare(password, user.password);
+
+        if (!isMatch) {
+            return res.status(401).json({message: "Password salah"});
+        }
+
+        if (user.is_completed === 0) {
+            return res.status(200).json({
+                message: "Lengkapi data terlebih dahulu",
+                redirectTo: "/input",
+                user: {
+                    id:user.id,
+                    fullname:user.fullname,
+                    email:user.email
+                }
+            });
+        }
+
+        res.status(200).json({
+            message: "Login berhasil", user: {
+                id: user.id,
+                fullname:user.fullname,
+                email:user.email
+            },
+        });
+    });
+};
+
+const inputData = (req,res) => {
+    const { userId, nama, jeniskelamin, tanggallahir, noTelp} = req.body;
+
+    const sql = `
+        UPDATE users 
+        SET
+            fullname = ?,
+            gender = ?,
+            birth_date = ?,
+            phone = ?,
+            is_completed = 1
+        WHERE id = ?
+    `;
+
+    db.query(
+        sql, [nama, jeniskelamin, tanggallahir, noTelp,userId],
+        (err, result) => {
+            if (err) {
+                return res.status(500).json({
+                    message: "Gagal simpan profile",
+                });
+            }
+
+            res.status(200).json({
+                message: "Profile berhasil dilengkapi",
+            });
+        }
+    );
+};
+
+const getProfile = (req, res) => {
+    const {id} = req.params;
+
+    const sql = "SELECT * FROM users WHERE id = ?";
+
+    db.query(sql, [id], (err, result) => {
+        if (err) {
+            return res.status(500).json({
+                message: "Server error",
+            });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({
+                message: "User tidak ditemukan",
+            });
+        }
+
+        res.status(200).json(result[0]);
+    });
+};
+
+const updateProfile = (req,res) => {
+    const {id} = req.params;
+    const {fullname, gender, email, phone, birth_date} = req.body;
+
+    const sql = `UPDATE users SET fullname=?, gender=?, email=?, phone=?, birth_date=? WHERE id=?`;
+
+    db.query(
+        sql, [fullname, gender, email, phone, birth_date, id],
+        (err) => {
+            if(err) {
+                return res.status(500).json({
+                    message: "Gagal update profile",
+                });
+            }
+
+            db.query("SELECT * FROM users WHERE id = ?",
+                [id], (err, result) => {
+                    if (err) {
+                        return registerUser.status(500).json({
+                            message: "Gagal mengambil data user",
+                        });
+                    }
+
+                    res.status(200).json({
+                        message: "Profile berhasil diupdate",
+                        user: result[0],
+                    });
+                }      
+            );
+        }
+    );
+};
+
+const uploadPhoto = (req, res) => {
+    const {id} = req.params;
+
+    if (!req.file) {
+        return res.status(400).json({
+            message: "File tidak ditemukan",
+        });
+    }
+
+    const imagePath = `/uploads/${req.file.filename}`;
+
+    const sql = `UPDATE users SET profile_image = ? WHERE id = ?`;
+
+    db.query(sql,[imagePath, id], (err) => {
+        if(err) {
+            return res.status(500).json({
+                message: "Gagal upload foto",
+            });
+        }
+
+        res.status(200).json({
+            message: "Upload berhasil", imagePath
+        });
+    });
+};
+
+module.exports = { registerUser, loginUser, inputData, getProfile, uploadPhoto, updateProfile };

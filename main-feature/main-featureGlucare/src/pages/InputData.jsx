@@ -3,7 +3,7 @@ import {useState } from "react";
 import Alert from "../components/Alert";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 
 export default function InputData() {
     const [alert, setAlert] = useState(null);
@@ -21,18 +21,31 @@ export default function InputData() {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        localStorage.setItem("profileData", JSON.stringify(formData));
-        setAlert({ type: "success", message: "Data berhasil disimpan"});
+        try {
+            const currentUser = JSON.parse(
+                localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
+            );
 
-        setTimeout(() => {
-            setAlert(null);
-            navigate("/beranda")       
-        }, 3000)
+            await axios.post(
+                "http://localhost:5000/api/auth/inputData",
+                {
+                    userId: currentUser.id,
+                    ...formData,
+                }
+            );
 
-        
+            setAlert({ type: "success", message: "Data berhasil disimpan"});
+            
+            setTimeout(() => {
+                navigate("/beranda")       
+            }, 2000);
+            
+        }catch(error) {
+            alert(error.response?.data?.message || "Gagal simpan data");
+        }    
     };
 
     

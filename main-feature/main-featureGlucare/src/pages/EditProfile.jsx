@@ -1,40 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import HeaderAnalisis from "../components/HeaderAnalisis";
-import Profile from "../assets/Profile.jpg";
+import defaulAvatar from "../assets/Profile.jpg";
 import { useSidebar } from "../hooks/useSidebar";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function EditProfile() {
     const navigate =useNavigate();
 
     const { isOpen } = useSidebar();
 
-    const initialData = {
-        nama: "Na Jaemin",
-        jenisKelamin: "Laki-laki",
-        email: "Najaemin0813@gmail.com",
-        noTelepon: "081324567889",
-        tanggalLahir: "2000-08-13",
-        foto: Profile,
-    };
+    const [selectedFile, setSelectedFile] = useState(null);
 
-    const [preview, setPreview] = useState(initialData.foto);
-    const [form, setForm] = useState(initialData);
+    const [form, setForm] = useState({
+        nama:"",
+        jenisKelamin:"",
+        email:"",
+        noTelepon:"",
+        tanggalLahir:"",
+    });
 
-    const isChanged = () => {
-        return (
-            form.nama !== initialData.nama ||
-            form.jenisKelamin !== initialData.jenisKelamin ||
-            form.email !== initialData.email ||
-            form.noTelepon !== initialData.noTelepon ||
-            form.tanggalLahir !== initialData.tanggalLahir ||
-            preview !== initialData.foto
+    const [preview, setPreview] = useState(null);
+
+    useEffect(()=>{
+        const currentUser = JSON.parse(
+            localStorage.getItem("currentUser") || 
+            sessionStorage.getItem("currentUser")
         );
-    };
 
- 
+        axios.get(`http://localhost:5000/api/auth/profile/${currentUser.id}`)
+        .then((response) => {
+            const user = response.data;
+
+            setForm({
+                nama: user.fullname || "",
+                jenisKelamin: user.gender || "",
+                email: user.email || "",
+                noTelepon: user.phone || "",
+                tanggalLahir: user.birth_date ? user.birth_date.split("T")[0] : "",
+            });
+
+            if(user.profile_image) {
+                setPreview(`http://localhost:5000${user.profile_image}`);
+            };
+        })
+        .catch((error) => console.log(error));
+    }, []);
+
     const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -53,21 +67,53 @@ export default function EditProfile() {
     }
   };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if(!isChanged()) {
-            return;
+        try {
+            const currentUser = JSON.parse(
+                localStorage.getItem("currentUser") ||
+                sessionStorage.getItem("currentUser")
+            );
+
+            const response = await axios.put(`http://localhost:5000/api/auth/update-profile/${currentUser.id}`, 
+                {
+                    fullname: form.nama,
+                    gender: form.jenisKelamin,
+                    email: form.email,
+                    phone: form.noTelepon,
+                    birth_date: form.tanggalLahir,
+                }
+            );
+
+            let updateUser = {
+                ...currentUser, ...response.data.user,
+            };
+
+            if(selectedFile) {
+                const imageData = new FormData();
+                imageData.append("image", selectedFile);
+
+                const photoResponse = await axios.put(`http://localhost:5000/api/auth/upload-photo/${currentUser.id}`,imageData);
+
+                updateUser.profile_image = photoResponse.data.imagePath;
+            }
+
+            localStorage.setItem("currentUser", JSON.stringify(updateUser));
+            sessionStorage.setItem("currentUser", JSON.stringify(updateUser));
+
+            alert("Profile berhasil diperbaharui");
+            navigate("/pengaturan");           
+        } catch (error) {
+            alert(error.response?.data?.message || "Update gagal");
         }
-        console.log("DATA:", form);
-        alert("Profile berhasil diperbaharui");
-        navigate("/pengaturan")
     };
 
-  
+
     const handleUpload = (e) => {
     const file = e.target.files[0];
         if (file) {
+            setSelectedFile(file);
             setPreview(URL.createObjectURL(file));
         }
     };
@@ -93,7 +139,7 @@ export default function EditProfile() {
                         <p className="mb-2 font-medium">Foto Profile</p>
 
                         <div className="flex flex-col items-center gap-3">
-                            <img src={preview} className="w-24 h-24 rounded-full object-cover border"/>
+                            <img src={preview || defaulAvatar} className="w-24 h-24 rounded-full object-cover border"/>
                             <label className="bg-blue-600 text-white px-4 py-2 rounded-lg cursor-pointer">
                                 Ganti foto profil
                                 <input type="file" hidden onChange={handleUpload} />

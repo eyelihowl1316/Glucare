@@ -1,8 +1,9 @@
 import { useEffect, useState} from "react";
 import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
-import Profile from "../assets/Profile.jpg"
+import defaultAvatar from "../assets/Profile.jpg"
 import { useSidebar } from "../hooks/useSidebar";
+
 
 function Dashboard(){
     const navigate = useNavigate();
@@ -12,6 +13,22 @@ function Dashboard(){
 
     const [streak, setStreak] = useState(0);
     const [day, setDay] = useState(0);
+
+    const [currentUser, setCurrentUser] = useState(null);
+    useEffect(() => {
+        const getUser = () => {
+            const user = JSON.parse(
+                localStorage.getItem("currentUser") ||
+                sessionStorage.getItem("currentUser")
+            );
+            setCurrentUser(user);
+        };
+
+        getUser();
+
+        window.addEventListener("focus", getUser);
+        return () => window.removeEventListener("focus", getUser);       
+    }, [location.pathname]);
     
     const hour = new Date().getHours();
     let greeting ="Good Morning";
@@ -44,14 +61,14 @@ function Dashboard(){
                     
                     
                     <div className="flex items-center gap-3 mb-6 lg:mb-8">
-                        <img src={Profile} className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover flex-shrink-0"/>
+                        <img src={currentUser?.profile_image ? `http://localhost:5000${currentUser.profile_image}` : defaultAvatar} className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover flex-shrink-0"/>
                         <div className="min-w-0">
                             <p className="text-sm text-gray-500 hidden sm:block">
                                 {greeting}
                             </p>
 
                             <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-800 truncate">
-                                Halo, Na Jaemin 👋
+                                Halo, {currentUser?.fullname || "User"}👋
                             </h2>
                         </div>
                     </div>

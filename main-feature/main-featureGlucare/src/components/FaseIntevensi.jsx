@@ -1,9 +1,12 @@
+import { useNavigate } from "react-router-dom";
 export default function FaseIntervensi() {
+    const navigate = useNavigate();
     const phases = [
         {
             title: "Stabilisasi Dasar",
             range: "Hari 1-30",
             active: true,
+            path: "/stabilisasi",
             status: [
                 { icon: "🍬", value: "<= 40g", color: "text-orange-500" },
                 { icon: "🏃‍♀️", value: "150 menit", color: "text-blue-500" },
@@ -14,6 +17,7 @@ export default function FaseIntervensi() {
             title: "Optimasi Metabolik",
             range: "Hari 31-60",
             active: false,
+            path: "/optimasi",
             status: [
                 { icon: "🍬", value: "<= 30g", color: "text-orange-500" },
                 { icon: "🏃‍♀️", value: "200 menit", color: "text-blue-500" },
@@ -24,6 +28,7 @@ export default function FaseIntervensi() {
             title: "Konsolidasi",
             range: "Hari 61-90",
             active: false,
+            path: "/konsolidasi",
             status: [
                 { icon: "🍬", value: "<= 25g", color: "text-orange-500" },
                 { icon: "🏃‍♀️", value: "250 menit", color: "text-blue-500" },
@@ -37,6 +42,7 @@ export default function FaseIntervensi() {
             {phases.map((item, i) => (
                 <div
                     key={i}
+                    onClick={() => item.path && navigate(item.path)}
                     className={`rounded-xl p-4 border transition cursor-pointer hover:shadow-sm ${
                         item.active
                             ? "border-[#0B5ED7] bg-blue-50"
@@ -74,10 +80,9 @@ export default function FaseIntervensi() {
                                 ))}
                             </div>
 
-                            
-                            <p className="text-xs text-[#0072CE] mt-2">
+                            <p className="text-xs text-[#0072CE] mt-2 font-medium">
                                 Klik untuk detail
-                            </p>
+                            </p>                         
                         </div>
                     </div>
                 </div>

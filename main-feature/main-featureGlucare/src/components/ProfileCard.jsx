@@ -2,16 +2,36 @@ import ProfileItem from "./ProfileItem";
 import { FaUser, FaVenusMars, FaCalendar, FaPhone, FaEnvelope } from "react-icons/fa";
 import Button from "../components/Button"
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 export default function ProfileCard() {
     const navigate =useNavigate();
+    const [profile,setProfile] = useState(null);
+
+    useEffect(() => {
+        const currentUser = JSON.parse(
+            localStorage.getItem("currentUser") ||
+            sessionStorage.getItem("currentUser")
+        );
+
+        axios.get(`http://localhost:5000/api/auth/profile/${currentUser.id}`)
+        .then((response) => {
+            setProfile(response.data);
+        })
+        .catch((error) => {
+            console.log(error);
+        });
+    }, []);
+
+    if(!profile) return <p>Loading...</p>;
 
     const data =[ 
-        { icon: FaUser, label: "Name", value: "Na Jaemin"},
-        { icon: FaVenusMars, label: "Jenis Kelamin", value: "Laki-Laki"},
-        { icon: FaCalendar, label: "Tanggal Lahir", value: "13-08-2000"},
-        { icon: FaPhone, label: "No Telepon", value: "081345678890"},
-        { icon: FaEnvelope, label: "E-mail", value: "Najaemin0813@gmail.com"},
+        { icon: FaUser, label: "Name", value: profile.fullname},
+        { icon: FaVenusMars, label: "Jenis Kelamin", value: profile.gender},
+        { icon: FaCalendar, label: "Tanggal Lahir", value: new Date(profile.birth_date).toLocaleDateString("id-ID")},
+        { icon: FaPhone, label: "No Telepon", value: profile.phone},
+        { icon: FaEnvelope, label: "E-mail", value: profile.email},
     ];
 
     return (

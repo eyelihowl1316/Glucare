@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
@@ -21,33 +22,40 @@ export default function AuthPage() {
         agree: false,
     });
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
 
-        const users = JSON.parse(localStorage.getItem("users")) || [];
+        try {
+            const response = await axios.post(
+                "http://localhost:5000/api/auth/login",
+                {
+                    email: loginData.email,
+                    password: loginData.password,
+                }
+            );
 
-        const user = users.find(
-            (user) =>
-                user.email === loginData.email.trim().toLowerCase() &&
-                user.password === loginData.password
-        );
-
-        if (user) {
+            const user = response.data.user;
+            
             if (loginData.remember) {
                 localStorage.setItem("currentUser", JSON.stringify(user));
             } else {
                 sessionStorage.setItem("currentUser", JSON.stringify(user));
             }
-            navigate("/beranda");
-        } else {
-            alert("Email atau password salah");
-        }
+
+            if (response.data.redirectTo) {
+                navigate(response.data.redirectTo);
+            }else {
+                navigate("/beranda");
+            }
+            
+        } catch (error) {
+            alert(error.response?.data?.message || "Login gagal");
+        }    
     };
 
-    const handleSignup = (e) => {
+    const handleSignup = async (e) => {
         e.preventDefault();
 
-        let users = JSON.parse(localStorage.getItem("users")) || [];
 
         if (!signupData.name || !signupData.email || !signupData.password) {
             alert("Semua field harus diisi");
@@ -64,33 +72,24 @@ export default function AuthPage() {
             return;
         }
 
-        const userExists = users.find(
-            (user) => user.email === signupData.email.trim().toLowerCase()
-        );
+        try {
+            const response = await axios.post(
+                "http://localhost:5000/api/auth/register",
+                {
+                    fullname: signupData.name,
+                    email: signupData.email,
+                    password: signupData.password,
+                }
+            );
 
-        if (userExists) {
-            alert("Email sudah terdaftar");
-            return;
-        }
+            const user = response.data.user;
 
-        const newUser = {
-            name: signupData.name.trim(),
-            email: signupData.email.trim().toLowerCase(),
-            password: signupData.password.trim(),
-        };
+            sessionStorage.setItem("currentUser", JSON.stringify(user));
 
-        users.push(newUser);
-        localStorage.setItem("users", JSON.stringify(users));
-        sessionStorage.setItem("currentUser", JSON.stringify(newUser));
-    
-        setSignupData({
-            name: "",
-            email: "",
-            password: "",
-            agree: false,
-        });
-
-        navigate("/input");
+            navigate("/input");
+        } catch(error) {
+            alert( error.response?.data?.message || "Register gagal");
+        }          
     };
 
     return (
