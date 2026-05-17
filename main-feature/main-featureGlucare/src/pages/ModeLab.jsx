@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar";
 import HeaderAnalisis from "../components/HeaderAnalisis";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../hooks/useSidebar";
+import axios from "axios";
 
 export default function ModeLab() {
     const navigate = useNavigate();
@@ -65,9 +66,28 @@ export default function ModeLab() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (validateForm()) {
-            navigate("/hasil");
+            try {
+                const currentUser = JSON.parse(
+                    localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
+                );
+
+                await axios.post("http://localhost:5000/api/lab/submit", {
+                    user_id: currentUser?.id,
+                    hba1c: parseFloat(form.hba1c) || 0,
+                    gula_darah_puasa: parseFloat(form.gula) || 0,
+                    berat_badan: parseFloat(form.berat) || 0,
+                    tinggi_badan: parseFloat(form.tinggi) || 0,
+                    riwayat_keluarga: form.riwayatKeluarga || "",
+                    riwayat_diabetes: form.riwayatDiabetes || ""
+                });
+
+                navigate("/hasil");
+            } catch (error) {
+                console.error(error);
+                alert("Gagal menyimpan data lab");
+            }
         }
     };
 

@@ -1,10 +1,12 @@
 import { useState } from "react";
 import Sidebar from "../components/Sidebar";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 import HeaderAnalisis from "../components/HeaderAnalisis";
 import { useSidebar } from "../hooks/useSidebar";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import Alert from "../components/Alert";
+import axios from "axios";
 
 export default function ChangePassword() {
     const { isOpen } = useSidebar();
@@ -16,6 +18,9 @@ export default function ChangePassword() {
         newPassword: "",
         confirmPassword: "",
     });
+    const [showOldPassword, setShowOldPassword] = useState(false);
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,7 +38,7 @@ export default function ChangePassword() {
             );
         };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (!isChanged()) return;
@@ -48,10 +53,24 @@ export default function ChangePassword() {
             return;
         }
 
-        console.log("PASSWORD DATA:", form);
+        try {
+            const currentUser = JSON.parse(
+                localStorage.getItem("currentUser") ||
+                sessionStorage.getItem("currentUser")
+            );
+
+            await axios.put(`http://localhost:5000/api/auth/change-password/${currentUser.id}`, {
+                oldPassword: form.oldPassword,
+                newPassword: form.newPassword
+            });
 
             setAlert({ type: "success", message: "Password berhasil diubah"});
+            setTimeout(() => {
                 navigate("/pengaturan");
+            }, 1500);
+        } catch (error) {
+            setAlert({ type: "error", message: error.response?.data?.message || "Gagal mengubah password" });
+        }
     };
 
     return (
@@ -75,38 +94,65 @@ export default function ChangePassword() {
                                     <form onSubmit={handleSubmit} className="space-y-6">
                                         <div>
                                             <label className="text-sm font-medium">Old Password</label>
-                                            <input
-                                            type="password"
-                                            name="oldPassword"
-                                            value={form.oldPassword}
-                                            onChange={handleChange}
-                                            placeholder="Masukkan password lama"
-                                            className="w-full mt-1 px-4 py-2 rounded-lg bg-gray-100 focus:outline-none"
-                                            />
+                                            <div className="relative w-full mt-1">
+                                                <input
+                                                type={showOldPassword ? "text" : "password"}
+                                                name="oldPassword"
+                                                value={form.oldPassword}
+                                                onChange={handleChange}
+                                                placeholder="Masukkan password lama"
+                                                className="w-full px-4 py-2 rounded-lg bg-gray-100 focus:outline-none pr-10"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowOldPassword(!showOldPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                                >
+                                                    {showOldPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                                                </button>
+                                            </div>
                                         </div>
 
              
                                         <div>
                                             <label className="text-sm font-medium">New Password</label>
-                                            <input
-                                            type="password"
-                                            name="newPassword"
-                                            value={form.newPassword}
-                                            onChange={handleChange}
-                                            placeholder="Masukkan password baru"
-                                            className="w-full mt-1 px-4 py-2 rounded-lg bg-gray-100 focus:outline-none"/>
+                                            <div className="relative w-full mt-1">
+                                                <input
+                                                type={showNewPassword ? "text" : "password"}
+                                                name="newPassword"
+                                                value={form.newPassword}
+                                                onChange={handleChange}
+                                                placeholder="Masukkan password baru"
+                                                className="w-full px-4 py-2 rounded-lg bg-gray-100 focus:outline-none pr-10"/>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowNewPassword(!showNewPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                                >
+                                                    {showNewPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                                                </button>
+                                            </div>
                                         </div>
              
                                         <div>
                                             <label className="text-sm font-medium">Confirm Password</label>
-                                            <input
-                                            type="password"
-                                            name="confirmPassword"
-                                            value={form.confirmPassword}
-                                            onChange={handleChange}
-                                            placeholder="Ulangi password baru"
-                                            className="w-full mt-1 px-4 py-2 rounded-lg bg-gray-100 focus:outline-none"
-                                            />
+                                            <div className="relative w-full mt-1">
+                                                <input
+                                                type={showConfirmPassword ? "text" : "password"}
+                                                name="confirmPassword"
+                                                value={form.confirmPassword}
+                                                onChange={handleChange}
+                                                placeholder="Ulangi password baru"
+                                                className="w-full px-4 py-2 rounded-lg bg-gray-100 focus:outline-none pr-10"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                                >
+                                                    {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                                                </button>
+                                            </div>
                                         </div>
 
                                         <div className="flex justify-end mt-6">

@@ -2,12 +2,15 @@ import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { FiEye, FiEyeOff } from "react-icons/fi";
 
 export default function AuthPage() {
     const navigate = useNavigate();
 
     const [isActive, setIsActive] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [showPasswordLogin, setShowPasswordLogin] = useState(false);
+    const [showPasswordSignup, setShowPasswordSignup] = useState(false);
 
     const [loginData, setLoginData] = useState({
         email: "",
@@ -118,14 +121,23 @@ export default function AuthPage() {
                                     setLoginData({ ...loginData, email: e.target.value })
                                 }/>
 
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                className="w-full bg-gray-100 rounded-lg p-3 mb-3"
-                                value={loginData.password}
-                                onChange={(e) =>
-                                    setLoginData({ ...loginData, password: e.target.value })
-                                }/>
+                            <div className="w-full relative mb-3">
+                                <input
+                                    type={showPasswordLogin ? "text" : "password"}
+                                    placeholder="Password"
+                                    className="w-full bg-gray-100 rounded-lg p-3 pr-10"
+                                    value={loginData.password}
+                                    onChange={(e) =>
+                                        setLoginData({ ...loginData, password: e.target.value })
+                                    }/>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPasswordLogin(!showPasswordLogin)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                >
+                                    {showPasswordLogin ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                                </button>
+                            </div>
 
                             <div className="w-full flex justify-between items-center mb-4 text-sm relative z-10">
                                 <label className="flex items-center gap-2 whitespace-nowrap">
@@ -183,17 +195,26 @@ export default function AuthPage() {
                                     setSignupData({ ...signupData, email: e.target.value })
                                 }/>
 
-                            <input
-                                type="password"
-                                placeholder="Password"
-                                className="w-full bg-gray-100 rounded-lg p-3 mb-3"
-                                value={signupData.password}
-                                onChange={(e) =>
-                                    setSignupData({
-                                        ...signupData,
-                                        password: e.target.value,
-                                    })
-                                }/>
+                            <div className="w-full relative mb-3">
+                                <input
+                                    type={showPasswordSignup ? "text" : "password"}
+                                    placeholder="Password"
+                                    className="w-full bg-gray-100 rounded-lg p-3 pr-10"
+                                    value={signupData.password}
+                                    onChange={(e) =>
+                                        setSignupData({
+                                            ...signupData,
+                                            password: e.target.value,
+                                        })
+                                    }/>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPasswordSignup(!showPasswordSignup)}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                >
+                                    {showPasswordSignup ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                                </button>
+                            </div>
 
                             <label className="text-sm flex gap-2 mb-4">
                                 <input

@@ -23,6 +23,8 @@ import InputData from './pages/InputData';
 import StabilisasiDasar from './pages/StabilisasiDasar';
 import OptimasiMetabolik from './pages/OptimasiMetabolik';
 import Konsolidasi from './pages/Konsolidasi';
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicRoute from './components/PublicRoute';
 
 function App() {
 
@@ -33,35 +35,38 @@ function App() {
       <ScrollToTop />
     
       <Routes>
+        <Route element={<PublicRoute />}>
+          <Route path='/' element={<WelcomePage />} />
+          <Route path='/tentang' element={<Tentang />}/>
+          <Route path='/fitur' element={<FiturUtama />}/>
+          <Route path='/cara-kerja' element={<CaraKerja />}/>
+          <Route path='/hubungi'element={<HubungiKami />}/>
+          <Route path='/login' element={<Auth />}/>
+        </Route>
 
-        <Route path='/' element={<WelcomePage />} />
-        <Route path='/tentang' element={<Tentang />}/>
-        <Route path='/fitur' element={<FiturUtama />}/>
-        <Route path='/cara-kerja' element={<CaraKerja />}/>
-        <Route path='/hubungi'element={<HubungiKami />}/>
-        <Route path='/login' element={<Auth />}/>
-        <Route path='/input' element={<InputData />}/>
-        <Route path='/beranda' element={<Dashboard />} />
-        <Route path='/analisis' element={<Analisis />} />
-        <Route path="/kuesioner" element={<Kuesioner />} />
-        <Route path="/modeLab" element={<ModeLab />}/>
-        <Route path="/hasil" element={<HasilAnalisis />}/>
-        <Route path="/rencana" element={<Rencana90Hari />}/>
-        <Route path="/evaluasi" element={<Evaluasi />}/>
-        <Route path="/pencapaian" element={<Pencapaian />}/>
-        <Route path="/stabilisasi" element={<StabilisasiDasar />}/>
-        <Route path="/optimasi" element={<OptimasiMetabolik />}/>
-        <Route path="/konsolidasi" element={<Konsolidasi />}/>
-        <Route path="/pengaturan" element={<SettingAndProfile />}/>
-        <Route path="/editprofile" element={<EditProfile />}/>
-        <Route path="/bantuan-dan-dukungan" element={<BantuandanDukungan/>}/>
-        <Route path="/privasi-layanan" element={<KebijakanPrivasi/>}/>
-        <Route path="/ubahpassword" element={<UbahPassword/>}/>
-
-
+        <Route element={<ProtectedRoute />}>
+          <Route path='/input' element={<InputData />}/>
+          <Route path='/beranda' element={<Dashboard />} />
+          <Route path='/analisis' element={<Analisis />} />
+          <Route path="/kuesioner" element={<Kuesioner />} />
+          <Route path="/modeLab" element={<ModeLab />}/>
+          <Route path="/hasil" element={<HasilAnalisis />}/>
+          <Route path="/rencana" element={<Rencana90Hari />}/>
+          <Route path="/evaluasi" element={<Evaluasi />}/>
+          <Route path="/pencapaian" element={<Pencapaian />}/>
+          <Route path="/stabilisasi" element={<StabilisasiDasar />}/>
+          <Route path="/optimasi" element={<OptimasiMetabolik />}/>
+          <Route path="/konsolidasi" element={<Konsolidasi />}/>
+          <Route path="/pengaturan" element={<SettingAndProfile />}/>
+          <Route path="/editprofile" element={<EditProfile />}/>
+          <Route path="/bantuan-dan-dukungan" element={<BantuandanDukungan/>}/>
+          <Route path="/privasi-layanan" element={<KebijakanPrivasi/>}/>
+          <Route path="/ubahpassword" element={<UbahPassword/>}/>
+        </Route>
       </Routes> 
     </> 
   );
 }
 
 export default App;
+
