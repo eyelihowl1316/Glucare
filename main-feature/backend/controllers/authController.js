@@ -12,6 +12,9 @@ const registerUser = async (req, res) => {
         db.query(sql, [fullname, email, hashedPassword], (err, result) => {
         if (err) {
             console.log(err);
+            if (err.code === 'ER_DUP_ENTRY') {
+                return res.status(400).json({ message: "Email sudah terdaftar!" });
+            }
             return res.status(500).json({ message: "Register gagal" });
         }
 
@@ -21,6 +24,7 @@ const registerUser = async (req, res) => {
                 id: result.insertId,
                 fullname,
                 email,
+                is_completed: 0
             },
         });
     });
@@ -60,7 +64,8 @@ const loginUser = (req, res) => {
                 user: {
                     id:user.id,
                     fullname:user.fullname,
-                    email:user.email
+                    email:user.email,
+                    is_completed: user.is_completed
                 }
             });
         }
@@ -69,7 +74,8 @@ const loginUser = (req, res) => {
             message: "Login berhasil", user: {
                 id: user.id,
                 fullname:user.fullname,
-                email:user.email
+                email:user.email,
+                is_completed: user.is_completed
             },
         });
     });
@@ -186,4 +192,30 @@ const uploadPhoto = (req, res) => {
     });
 };
 
-module.exports = { registerUser, loginUser, inputData, getProfile, uploadPhoto, updateProfile };
+const changePassword = async (req, res) => {
+    const { id } = req.params;
+    const { oldPassword, newPassword } = req.body;
+
+    const sql = "SELECT * FROM users WHERE id = ?";
+    db.query(sql, [id], async (err, result) => {
+        if (err) return res.status(500).json({ message: "Server error" });
+        if (result.length === 0) return res.status(404).json({ message: "User tidak ditemukan" });
+
+        const user = result[0];
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+
+        if (!isMatch) {
+            return res.status(401).json({ message: "Password lama salah" });
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        const updateSql = "UPDATE users SET password = ? WHERE id = ?";
+        
+        db.query(updateSql, [hashedPassword, id], (err) => {
+            if (err) return res.status(500).json({ message: "Gagal update password" });
+            res.status(200).json({ message: "Password berhasil diubah" });
+        });
+    });
+};
+
+module.exports = { registerUser, loginUser, inputData, getProfile, uploadPhoto, updateProfile, changePassword };
