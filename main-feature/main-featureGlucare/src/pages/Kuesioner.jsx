@@ -6,6 +6,7 @@ import iconNext from "../assets/iconNext.svg";
 import iconFinish from "../assets/iconFinish.svg";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../hooks/useSidebar";
+import axios from "axios";
 
 const questions = [
     {
@@ -58,7 +59,7 @@ export default function Kuesioner() {
         });
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (!answers[currentQuestion]) {
             alert("Silahkan pilih jawaban terlebih dahulu");
             return;
@@ -67,7 +68,28 @@ export default function Kuesioner() {
         if (currentQuestion < questions.length - 1) {
             setCurrentQuestion(currentQuestion + 1);
         } else {
-            navigate("/loading", {state: answers});
+            try {
+                const currentUser = JSON.parse(
+                    localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
+                );
+
+                await axios.post("http://localhost:5000/api/kuesioner/submit", {
+                    user_id: currentUser?.id,
+                    usia: answers[0] || "",
+                    riwayat_keluarga: answers[1] || "",
+                    olahraga: answers[2] || "",
+                    makanan_manis: answers[3] || "",
+                    lingkar_pinggang: answers[4] || "",
+                    gejala_diabetes: answers[5] || "",
+                    jam_tidur: answers[6] || "",
+                    tingkat_stress: answers[7] || ""
+                });
+
+                navigate("/hasil", {state: answers});
+            } catch (err) {
+                console.error(err);
+                alert("Gagal menyimpan kuesioner");
+            }
         }
     };
 
@@ -155,7 +177,7 @@ export default function Kuesioner() {
                                 </div>
 
                             <button
-                                onClick={currentQuestion === questions.length -1 ? () => navigate('/hasil') : handleNext}
+                                onClick={handleNext}
                                 className="flex items-center justify-center gap-2 bg-gradient-to-r 
                                 from-[#0072CE] to-[#3E97FF] text-white px-6 sm:px-8 py-3 sm:py-2.5 
                                 rounded-xl font-semibold text-sm sm:text-base shadow-lg

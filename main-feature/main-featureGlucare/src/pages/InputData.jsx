@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar";
-import {useState } from "react";
+import { useState, useEffect } from "react";
 import Alert from "../components/Alert";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
@@ -8,16 +8,25 @@ import axios from "axios";
 export default function InputData() {
     const [alert, setAlert] = useState(null);
     const navigate = useNavigate();
-    const [formData, setFormData] = useState ({
-        nama:"",
-        jeniskelamin:"",
-        tanggallahir:"",
-        noTelp:"",
+    const [formData, setFormData] = useState({
+        nama: "",
+        jeniskelamin: "",
+        tanggallahir: "",
+        noTelp: "",
     });
 
-    const handleChange =(e)=> {
+    useEffect(() => {
+        const currentUser = JSON.parse(
+            localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
+        );
+        if (currentUser && currentUser.is_completed === 1) {
+            navigate("/beranda");
+        }
+    }, [navigate]);
+
+    const handleChange = (e) => {
         setFormData({
-            ...formData,[e.target.name]: e.target.value,
+            ...formData, [e.target.name]: e.target.value,
         });
     };
 
@@ -37,19 +46,23 @@ export default function InputData() {
                 }
             );
 
-            setAlert({ type: "success", message: "Data berhasil disimpan"});
-            
+            const updatedUser = { ...currentUser, is_completed: 1 };
+            if (localStorage.getItem("currentUser")) localStorage.setItem("currentUser", JSON.stringify(updatedUser));
+            if (sessionStorage.getItem("currentUser")) sessionStorage.setItem("currentUser", JSON.stringify(updatedUser));
+
+            setAlert({ type: "success", message: "Data berhasil disimpan" });
+
             setTimeout(() => {
-                navigate("/beranda")       
+                navigate("/beranda")
             }, 2000);
-            
-        }catch(error) {
+
+        } catch (error) {
             alert(error.response?.data?.message || "Gagal simpan data");
-        }    
+        }
     };
 
-    
-    
+
+
 
     return (
         <div className="font-[Poppins]">
@@ -68,7 +81,7 @@ export default function InputData() {
 
                         {alert && (
                             <div className="mb-4">
-                                <Alert type={alert.type} message={alert.message} onClose={()=> setAlert(null)}/>
+                                <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />
                             </div>
                         )}
 
@@ -78,60 +91,64 @@ export default function InputData() {
                                 <label className="block text-sm mb-2">
                                     Nama Lengkap
                                 </label>
-                                <input 
+                                <input
                                     type="text"
                                     name="nama"
                                     value={formData.nama}
                                     onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-full px-6 py-3 outline-none"/>
+                                    className="w-full border border-gray-300 rounded-full px-6 py-3 outline-none" />
                             </div>
 
                             <div>
                                 <label className="block text-sm mb-2">
                                     Jenis Kelamin
                                 </label>
-                                <input 
-                                    type="text"
+                                <select
                                     name="jeniskelamin"
                                     value={formData.jeniskelamin}
                                     onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-full px-6 py-3 outline-none"/>
+                                    className="w-full border border-gray-300 rounded-full px-6 py-3 outline-none bg-white"
+                                >
+                                    <option value="" disabled>Pilih Jenis Kelamin</option>
+                                    <option value="Laki-laki">Laki-laki</option>
+                                    <option value="Perempuan">Perempuan</option>
+                                </select>
                             </div>
 
                             <div>
                                 <label className="block text-sm mb-2">
                                     Tanggal Lahir
                                 </label>
-                                <input 
+                                <input
                                     type="date"
                                     name="tanggallahir"
                                     value={formData.tanggallahir}
                                     onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-full px-6 py-3 outline-none"/>
+                                    className="w-full border border-gray-300 rounded-full px-6 py-3 outline-none" />
                             </div>
 
                             <div>
                                 <label className="block text-sm mb-2">
                                     No Telepon
                                 </label>
-                                <input 
+                                <input
                                     type="tel"
                                     name="noTelp"
                                     value={formData.noTelp}
                                     onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-full px-6 py-3 outline-none"/>
+                                    className="w-full border border-gray-300 rounded-full px-6 py-3 outline-none" />
                             </div>
 
                             <div className="flex justify-end pt-4">
                                 <Button variant="primary"
                                     type="submit">
-                                        Simpan Data
-                                    </Button>                  
+                                    Simpan Data
+                                </Button>
                             </div>
                         </form>
                     </div>
                 </div>
-            </main>               
+            </main>
         </div>
     );
 }

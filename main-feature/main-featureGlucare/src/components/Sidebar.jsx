@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { FaHome, FaList, FaCalendar, FaRobot, FaCog, FaBars, FaSignOutAlt, FaChartPie } from "react-icons/fa";
 import defaultProfile from "../assets/Profile.jpg"
 import { useSidebar } from "../hooks/useSidebar";
+import axios from "axios";
 
 function Sidebar() {
     const location = useLocation();
@@ -11,13 +12,24 @@ function Sidebar() {
     const [currentUser, setCurrentUser] = useState(null);
 
     useEffect(() => {
-        const getUser = () => {
+        const getUser = async () => {
             const user = JSON.parse(
                 localStorage.getItem("currentUser") ||
                 sessionStorage.getItem("currentUser")
             );
 
-        setCurrentUser(user);
+            if (user && user.id) {
+                try {
+                    const response = await axios.get(`http://localhost:5000/api/auth/profile/${user.id}`);
+                    setCurrentUser(response.data);
+                    localStorage.setItem("currentUser", JSON.stringify(response.data));
+                } catch (error) {
+                    console.error("Gagal ambil data user di Sidebar:", error);
+                    setCurrentUser(user);
+                }
+            } else {
+                setCurrentUser(user);
+            }
     }; 
 
     getUser();

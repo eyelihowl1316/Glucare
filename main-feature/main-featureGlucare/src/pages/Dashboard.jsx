@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../assets/Profile.jpg"
 import { useSidebar } from "../hooks/useSidebar";
+import axios from "axios";
 
 
 function Dashboard(){
@@ -16,12 +17,23 @@ function Dashboard(){
 
     const [currentUser, setCurrentUser] = useState(null);
     useEffect(() => {
-        const getUser = () => {
+        const getUser = async () => {
             const user = JSON.parse(
                 localStorage.getItem("currentUser") ||
                 sessionStorage.getItem("currentUser")
             );
-            setCurrentUser(user);
+            
+            if (user && user.id) {
+                try {
+                    const response = await axios.get(`http://localhost:5000/api/auth/profile/${user.id}`);
+                    setCurrentUser(response.data);
+                    
+                    localStorage.setItem("currentUser", JSON.stringify(response.data));
+                } catch (error) {
+                    console.error("Gagal mengambil data user:", error);
+                    setCurrentUser(user);
+                }
+            }
         };
 
         getUser();
