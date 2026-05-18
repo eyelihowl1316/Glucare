@@ -7,6 +7,7 @@ require("./config/db");
 const authRoutes = require("./routes/authRoutes");
 const kuesionerRoutes = require("./routes/kuesionerRoutes");
 const labRoutes = require("./routes/labRoutes");
+const contactUsRoutes = require("./routes/contactUsRoutes");
 
 const app = express();
 
@@ -16,7 +17,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/kuesioner", kuesionerRoutes);
 app.use("/api/lab", labRoutes);
-
+app.use("/api/contact-us", contactUsRoutes);
 app.use("/uploads", express.static("uploads"));
 
 
