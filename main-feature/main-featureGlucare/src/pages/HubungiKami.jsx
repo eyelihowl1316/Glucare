@@ -3,6 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import contactBg from "../assets/contactus/Rectangle 235.png";
 import CTASection from "../components/CTAsection";
+import axios from "axios";
 
 export default function HubungiKami() {
     const [formData, setFormData] = useState({
@@ -39,7 +40,7 @@ export default function HubungiKami() {
         });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const { name, email, message } = formData;
@@ -49,17 +50,25 @@ export default function HubungiKami() {
         return;
         }
 
-        showPopup(
-        "Berhasil!",
-        "Pesan Anda telah terkirim! Kami akan segera menghubungi Anda."
-        );
+        try {
+            const response = await axios.post("http://localhost:5000/api/contact-us/send", formData);
 
+            showPopup(
+                "Berhasil!",
+                response.data.message || "Pesan Anda telah terkirim! Kami akan segera menghubungi Anda."
+            );
+        
         setFormData({
         name: "",
         email: "",
         message: "",
         });
-    };
+    } catch (error) {
+        showPopup(
+        "Gagal!", error.response?.data?.message || "Terjadi kesalahan saat mengirim pesan."
+        );
+    }
+};
 
     return (
         <div className="font-[Poppins]">

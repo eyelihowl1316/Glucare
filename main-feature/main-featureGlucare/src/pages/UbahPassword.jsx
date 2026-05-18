@@ -48,8 +48,8 @@ export default function ChangePassword() {
             return;
         }       
 
-        if (form.newPassword.length < 6) {
-            setAlert({ type: "warning", message: "Password minimal 6 karakter"});
+        if (form.newPassword.length < 8) {
+            setAlert({ type: "warning", message: "Password minimal 8 karakter"});
             return;
         }
 
@@ -157,7 +157,7 @@ export default function ChangePassword() {
 
                                         <div className="flex justify-end mt-6">
                                             <Button type="submit" variant="primary">
-                                            Confirm Password
+                                            Ubah kata sandi
                                             </Button>
                                         </div>
 
