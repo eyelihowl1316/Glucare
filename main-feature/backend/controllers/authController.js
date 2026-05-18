@@ -2,14 +2,14 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 
 const registerUser = async (req, res) => {
-    const { fullname, email, password } = req.body;
+    const {email, password } = req.body;
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const sql = "INSERT INTO users (fullname, email, password) VALUES (?, ?, ?)";
+        const sql = "INSERT INTO users (email, password) VALUES ( ?, ?)";
 
-        db.query(sql, [fullname, email, hashedPassword], (err, result) => {
+        db.query(sql, [email, hashedPassword], (err, result) => {
         if (err) {
             console.log(err);
             if (err.code === 'ER_DUP_ENTRY') {
@@ -22,7 +22,6 @@ const registerUser = async (req, res) => {
             message: "Register berhasil",
             user: {
                 id: result.insertId,
-                fullname,
                 email,
                 is_completed: 0
             },

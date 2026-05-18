@@ -60,7 +60,7 @@ export default function AuthPage() {
         e.preventDefault();
 
 
-        if (!signupData.name || !signupData.email || !signupData.password) {
+        if (!signupData.email || !signupData.password) {
             alert("Semua field harus diisi");
             return;
         }
@@ -177,14 +177,6 @@ export default function AuthPage() {
                             <h1 className="text-4xl font-bold">Buat Akun</h1>
                             <p className="my-5 text-sm">Gunakan email untuk registrasi</p>
 
-                            <input
-                                type="text"
-                                placeholder="Nama"
-                                className="w-full bg-gray-100 rounded-lg p-3 mb-3"
-                                value={signupData.name}
-                                onChange={(e) =>
-                                    setSignupData({ ...signupData, name: e.target.value })
-                                }/>
 
                             <input
                                 type="email"
