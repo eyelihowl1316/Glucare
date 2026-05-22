@@ -1,5 +1,6 @@
 const db = require("../config/db");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const registerUser = async (req, res) => {
     const {email, password } = req.body;
@@ -57,6 +58,13 @@ const loginUser = (req, res) => {
         }
 
         if (user.is_completed === 0) {
+
+            const token = jwt.sign(
+                { id: user.id, email: user.email },
+                process.env.JWT_SECRET, 
+                { expiresIn: "1d" }
+            );
+
             return res.status(200).json({
                 message: "Lengkapi data terlebih dahulu",
                 redirectTo: "/input",
@@ -69,8 +77,16 @@ const loginUser = (req, res) => {
             });
         }
 
+        const token = jwt.sign(
+            { id: user.id, email: user.email },
+            process.env.JWT_SECRET, 
+            { expiresIn: "1d" }
+        );
+
         res.status(200).json({
-            message: "Login berhasil", user: {
+            message: "Login berhasil",
+            token,
+            user: {
                 id: user.id,
                 fullname:user.fullname,
                 email:user.email,
@@ -128,7 +144,9 @@ const getProfile = (req, res) => {
             });
         }
 
-        res.status(200).json(result[0]);
+        const { password, ...userWithoutPassword } = result[0];
+
+        res.status(200).json(userWithoutPassword);
     });
 };
 
@@ -154,6 +172,8 @@ const updateProfile = (req,res) => {
                             message: "Gagal mengambil data user",
                         });
                     }
+
+                    const { password, ...userWithoutPassword } = result[0];
 
                     res.status(200).json({
                         message: "Profile berhasil diupdate",

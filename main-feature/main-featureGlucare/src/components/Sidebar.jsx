@@ -18,9 +18,18 @@ function Sidebar() {
                 sessionStorage.getItem("currentUser")
             );
 
+            const token = localStorage.getItem("token") || 
+            sessionStorage.getItem("token");
+
             if (user && user.id) {
                 try {
-                    const response = await axios.get(`http://localhost:5000/api/auth/profile/${user.id}`);
+                    const response = await axios.get(`http://localhost:5000/api/auth/profile/${user.id}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                            },
+                        }
+                    );
                     setCurrentUser(response.data);
                     localStorage.setItem("currentUser", JSON.stringify(response.data));
                 } catch (error) {
@@ -193,6 +202,9 @@ function Sidebar() {
                     onClick={() => {
                         localStorage.removeItem("currentUser");
                         sessionStorage.removeItem("currentUser");
+
+                        localStorage.removeItem("token");
+                        sessionStorage.removeItem("token");
 
                         if (window.innerWidth < 1024) {
                         setIsMobileMenuOpen(false);

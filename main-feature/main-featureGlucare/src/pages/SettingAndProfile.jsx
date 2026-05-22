@@ -11,9 +11,6 @@ export default function SettingAndProfile() {
     const { isOpen } = useSidebar();  
 
     const [profile, setProfile] = useState(null);
-    const [user, setUser] = useState(null);
-
-    const [seletedFile, setSelectedFile] = useState(null);
 
     useEffect(() => {
         const currentUser = JSON.parse(
@@ -23,10 +20,14 @@ export default function SettingAndProfile() {
 
         if (!currentUser) return;
 
-        setUser(!currentUser);
 
-        axios
-            .get(`http://localhost:5000/api/auth/profile/${currentUser.id}`)
+        axios.get(`http://localhost:5000/api/auth/profile/${currentUser.id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token") || sessionStorage.getItem("token")}`,
+                },
+            }
+        )
             .then((response) => {
                 setProfile(response.data);
             })

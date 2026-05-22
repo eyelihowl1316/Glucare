@@ -38,11 +38,14 @@ export default function AuthPage() {
             );
 
             const user = response.data.user;
+            const token = response.data.token;  
             
             if (loginData.remember) {
                 localStorage.setItem("currentUser", JSON.stringify(user));
+                localStorage.setItem("token", token);
             } else {
                 sessionStorage.setItem("currentUser", JSON.stringify(user));
+                sessionStorage.setItem("token", token);
             }
 
             if (response.data.redirectTo) {
@@ -108,6 +111,7 @@ export default function AuthPage() {
                         }`}>
                         <form
                             onSubmit={handleLogin}
+                            autoComplete="off"
                             className="h-full flex flex-col justify-center items-center px-10">
                             <h1 className="text-4xl font-bold">Masuk</h1>
                             <p className="my-5 text-sm">Gunakan akun email untuk masuk</p>
@@ -115,6 +119,7 @@ export default function AuthPage() {
                             <input
                                 type="email"
                                 placeholder="Email"
+                                autoComplete="off"
                                 className="w-full bg-gray-100 rounded-lg p-3 mb-3"
                                 value={loginData.email}
                                 onChange={(e) =>
@@ -125,6 +130,7 @@ export default function AuthPage() {
                                 <input
                                     type={showPasswordLogin ? "text" : "password"}
                                     placeholder="Password"
+                                    autoComplete="new-password"
                                     className="w-full bg-gray-100 rounded-lg p-3 pr-10"
                                     value={loginData.password}
                                     onChange={(e) =>
@@ -143,6 +149,7 @@ export default function AuthPage() {
                                 <label className="flex items-center gap-2 whitespace-nowrap">
                                     <input
                                         type="checkbox"
+                                        autoComplete="off"
                                         checked={loginData.remember}
                                         onChange={(e) =>
                                             setLoginData({
@@ -191,6 +198,7 @@ export default function AuthPage() {
                                 <input
                                     type={showPasswordSignup ? "text" : "password"}
                                     placeholder="Password"
+                                    autoComplete="new-password"
                                     className="w-full bg-gray-100 rounded-lg p-3 pr-10"
                                     value={signupData.password}
                                     onChange={(e) =>

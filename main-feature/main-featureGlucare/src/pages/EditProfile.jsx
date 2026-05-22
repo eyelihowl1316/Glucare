@@ -30,7 +30,13 @@ export default function EditProfile() {
             sessionStorage.getItem("currentUser")
         );
 
-        axios.get(`http://localhost:5000/api/auth/profile/${currentUser.id}`)
+        axios.get(`http://localhost:5000/api/auth/profile/${currentUser.id}`,
+            {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token") || sessionStorage.getItem("token")}`,
+                },
+            }
+        )
         .then((response) => {
             const user = response.data;
 
@@ -71,10 +77,15 @@ export default function EditProfile() {
         e.preventDefault();
 
         try {
+
             const currentUser = JSON.parse(
                 localStorage.getItem("currentUser") ||
                 sessionStorage.getItem("currentUser")
             );
+            
+            const token = 
+                localStorage.getItem("token") ||
+                sessionStorage.getItem("token");
 
             const response = await axios.put(`http://localhost:5000/api/auth/update-profile/${currentUser.id}`, 
                 {
@@ -83,7 +94,13 @@ export default function EditProfile() {
                     email: form.email,
                     phone: form.noTelepon,
                     birth_date: form.tanggalLahir,
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
                 }
+
             );
 
             let updateUser = {
@@ -94,7 +111,13 @@ export default function EditProfile() {
                 const imageData = new FormData();
                 imageData.append("image", selectedFile);
 
-                const photoResponse = await axios.put(`http://localhost:5000/api/auth/upload-photo/${currentUser.id}`,imageData);
+                const photoResponse = await axios.put(`http://localhost:5000/api/auth/upload-photo/${currentUser.id}`,imageData,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
 
                 updateUser.profile_image = photoResponse.data.imagePath;
             }
