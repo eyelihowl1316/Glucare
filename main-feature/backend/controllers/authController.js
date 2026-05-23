@@ -19,8 +19,15 @@ const registerUser = async (req, res) => {
             return res.status(500).json({ message: "Register gagal" });
         }
 
+        const token = jwt.sign(
+            { id: result.insertId, email},
+            process.env.JWT_SECRET, 
+            { expiresIn: "1d" }
+        );
+
         res.status(201).json({
             message: "Register berhasil",
+            token,
             user: {
                 id: result.insertId,
                 email,
@@ -119,9 +126,24 @@ const inputData = (req,res) => {
                 });
             }
 
-            res.status(200).json({
-                message: "Profile berhasil dilengkapi",
-            });
+            db.query("SELECT * FROM users WHERE id = ?", 
+                [userId], 
+                (err, result) => {
+
+                    if (err) {
+                        return res.status(500).json({
+                            message: "Gagal mengambil data user",
+                        });
+                    }
+
+                    const { password, ...userWithoutPassword } = result[0];
+
+                    res.status(200).json({
+                        message: "Profile berhasil dilengkapi",
+                        user: userWithoutPassword,
+                    });
+                }
+            );
         }
     );
 };

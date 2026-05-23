@@ -89,8 +89,10 @@ export default function AuthPage() {
             );
 
             const user = response.data.user;
+            const token = response.data.token;
 
             sessionStorage.setItem("currentUser", JSON.stringify(user));
+            sessionStorage.setItem("token", token);
 
             navigate("/input");
         } catch(error) {

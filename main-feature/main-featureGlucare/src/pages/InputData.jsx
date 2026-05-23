@@ -38,7 +38,7 @@ export default function InputData() {
                 localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
             );
 
-            await axios.post(
+            const response = await axios.post(
                 "http://localhost:5000/api/auth/inputData",
                 {
                     userId: currentUser.id,
@@ -46,7 +46,7 @@ export default function InputData() {
                 }
             );
 
-            const updatedUser = { ...currentUser, is_completed: 1 };
+            const updatedUser = response.data.user;
             if (localStorage.getItem("currentUser")) localStorage.setItem("currentUser", JSON.stringify(updatedUser));
             if (sessionStorage.getItem("currentUser")) sessionStorage.setItem("currentUser", JSON.stringify(updatedUser));
 

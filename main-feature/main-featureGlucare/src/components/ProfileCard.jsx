@@ -15,6 +15,8 @@ export default function ProfileCard() {
             sessionStorage.getItem("currentUser")
         );
 
+        if (!currentUser) return;
+
         axios.get(`http://localhost:5000/api/auth/profile/${currentUser.id}`,
             {
                 headers: {
