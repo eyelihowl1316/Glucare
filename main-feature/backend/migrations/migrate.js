@@ -49,25 +49,54 @@ db.connect((err) => {
         )
     `;
 
+    // Tabel Daily Logs (Untuk AI Monitoring)
+    const createDailyLogsTable = `
+        CREATE TABLE IF NOT EXISTS daily_logs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            day_idx INT NOT NULL,
+            glucose_mean FLOAT,
+            steps INT,
+            sleep_hours FLOAT,
+            carbs_g FLOAT,
+            target_sleep_met FLOAT,
+            target_steps_met FLOAT,
+            streak INT,
+            baseline_glucose FLOAT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    `;
+
     db.query("DROP TABLE IF EXISTS questionnaires", () => {
         db.query("DROP TABLE IF EXISTS lab_results", () => {
-            db.query(createQuestionnairesTable, (err) => {
-                if (err) {
-                    console.error("Gagal membuat tabel questionnaires:", err);
-                } else {
-                    console.log("Tabel 'questionnaires' berhasil dibuat sesuai frontend.");
-                }
-
-                db.query(createLabResultsTable, (err) => {
+            db.query("DROP TABLE IF EXISTS daily_logs", () => {
+                db.query(createQuestionnairesTable, (err) => {
                     if (err) {
-                        console.error("Gagal membuat tabel lab_results:", err);
+                        console.error("Gagal membuat tabel questionnaires:", err);
                     } else {
-                        console.log("Tabel 'lab_results' berhasil dibuat sesuai frontend.");
+                        console.log("Tabel 'questionnaires' berhasil dibuat sesuai frontend.");
                     }
-                    
-                    db.end(() => {
-                        console.log("Migration (Rebuild) selesai.");
-                        process.exit(0);
+
+                    db.query(createLabResultsTable, (err) => {
+                        if (err) {
+                            console.error("Gagal membuat tabel lab_results:", err);
+                        } else {
+                            console.log("Tabel 'lab_results' berhasil dibuat sesuai frontend.");
+                        }
+                        
+                        db.query(createDailyLogsTable, (err) => {
+                            if (err) {
+                                console.error("Gagal membuat tabel daily_logs:", err);
+                            } else {
+                                console.log("Tabel 'daily_logs' berhasil dibuat sesuai frontend.");
+                            }
+
+                            db.end(() => {
+                                console.log("Migration (Rebuild) selesai.");
+                                process.exit(0);
+                            });
+                        });
                     });
                 });
             });
