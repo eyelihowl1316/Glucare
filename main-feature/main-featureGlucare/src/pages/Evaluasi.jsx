@@ -131,7 +131,7 @@ export default function Evaluasi() {
                             <div>
                                 <h2 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                                     <span className="p-1.5 bg-blue-100 text-blue-600 rounded-lg text-sm">🧠</span> 
-                                    Deteksi Dini AI 90-Hari (XGBoost Model)
+                                    Deteksi Dini AI 90-Hari
                                 </h2>
                                 <p className="text-xs text-gray-500 mt-1">
                                     Analisis prognosis hari ke-90 menggunakan data log pemantauan 30 hari pertama.
@@ -433,4 +433,4 @@ export default function Evaluasi() {
             </div>
         </div>
     );
-}
+}

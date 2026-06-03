@@ -27,25 +27,25 @@ export default function FAQ() {
     const [activeIndex, setActiveIndex] = useState(null);
 
     return (
-        <section className="py-20 px-5 max-w-4xl mx-auto">
-        <h2 className="text-3xl font-bold text-center mb-10">
-            Pertanyaan yang sering diajukan
-        </h2>
+        <section className="py-12 sm:py-20 px-4 sm:px-5 max-w-4xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10">
+                Pertanyaan yang sering diajukan
+            </h2>
 
-        {faqs.map((faq, index) => (
-            <div key={index} className="border-b border-gray-200">
-                <button
-                    onClick={() =>
-                    setActiveIndex(activeIndex === index ? null : index)
-                    }
-                    className="w-full py-5 text-left text-xl font-semibold"
-                >
-                    {faq.question}
-                </button>
+            {faqs.map((faq, index) => (
+                <div key={index} className="border-b border-gray-200">
+                    <button
+                        onClick={() =>
+                            setActiveIndex(activeIndex === index ? null : index)
+                        }
+                        className="w-full py-5 text-left text-base sm:text-xl font-semibold"
+                    >
+                        {faq.question}
+                    </button>
 
-                {activeIndex === index && (
-                    <p className="pb-5 text-gray-600">{faq.answer}</p>
-                )}
+                    {activeIndex === index && (
+                        <p className="pb-5 text-sm sm:text-base text-gray-600">{faq.answer}</p>
+                    )}
                 </div>
             ))}
         </section>
