@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../assets/Profile.jpg"
 import { useSidebar } from "../hooks/useSidebar";
 import axios from "axios";
+import InputHarian from "../components/InputHarian";
 
 
 function Dashboard(){
@@ -86,7 +87,7 @@ function Dashboard(){
                     </div>
 
                     
-                    <div className="mt-6 sm:mt-10 max-w-5xl w-full bg-gradient-to-r from-[#0072CE] to-[#3E97FF] text-white p-4 sm:p-6 rounded-2xl shadow-md">
+                    <div className="mt-6 sm:mt-10 max-w-5xl w-full bg-gradient-to-r from-[#0072CE] to-[#3E97FF] text-white p-4 sm:p-6 rounded-2xl shadow-md mb-6">
                         <p className="text-xs sm:text-sm opacity-90">Status Risiko</p>
 
                         <h3 className="text-lg sm:text-xl font-bold mt-1">
@@ -105,7 +106,8 @@ function Dashboard(){
                         </button>
                     </div>
 
-                    
+                    <InputHarian />
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8 max-w-5xl w-full">
                         <div className="bg-white rounded-2xl shadow-sm sm:shadow-md p-4 sm:p-5 hover:shadow-md transition-shadow">
                             <div className="flex items-center gap-2 mb-2 sm:mb-3">
