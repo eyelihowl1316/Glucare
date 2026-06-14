@@ -202,13 +202,26 @@ function Dashboard() {
     }, []);
 
     // Tentukan warna berdasarkan risiko
-    const getHeroBackground = () => {
-        if (!riskData) return "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/20";
-        if (riskData.risk === "Risiko Tinggi") return "bg-red-600 text-white shadow-red-500/20";
-        if (riskData.risk === "Risiko Sedang") return "bg-orange-500 text-white shadow-orange-500/20";
-        return "bg-emerald-600 text-white shadow-emerald-500/20";
+    const getRiskStyles = () => {
+        if (!riskData) return { 
+            bg: "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/20", 
+            btnText: "text-indigo-600" 
+        };
+        if (riskData.risk === "Risiko Tinggi") return { 
+            bg: "bg-gradient-to-br from-red-600 to-rose-500 text-white shadow-red-500/30", 
+            btnText: "text-red-600" 
+        };
+        if (riskData.risk === "Risiko Sedang") return { 
+            bg: "bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-orange-500/30", 
+            btnText: "text-orange-600" 
+        };
+        return { 
+            bg: "bg-gradient-to-br from-emerald-600 to-teal-500 text-white shadow-emerald-500/30", 
+            btnText: "text-emerald-700" 
+        };
     };
 
+    const riskStyles = getRiskStyles();
     return (
         <div className={`flex-1 transition-all duration-300 ${isOpen ? 'lg:ml-60' : 'lg:ml-24'}`}>
             <Sidebar />
@@ -231,23 +244,43 @@ function Dashboard() {
                     </div>
 
                     
-                    <div className="mt-6 sm:mt-10 max-w-5xl w-full bg-gradient-to-r from-[#0072CE] to-[#3E97FF] text-white p-4 sm:p-6 rounded-2xl shadow-md">
-                        <p className="text-xs sm:text-sm opacity-90">Status Risiko</p>
+                    <div className={`mt-6 sm:mt-10 max-w-5xl w-full ${riskStyles.bg} p-6 sm:p-8 lg:p-10 rounded-[24px] shadow-xl transition-all duration-500 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden`}>
+                        {/* Decorative Background Glow */}
+                        <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/20 rounded-full blur-3xl pointer-events-none"></div>
+                        <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-black/5 rounded-full blur-2xl pointer-events-none"></div>
 
-                        <h3 className="text-lg sm:text-xl font-bold mt-1">
-                            {riskData ? riskData.status : "Belum ada data"}
-                        </h3>
+                        {/* Kiri: Teks & Info */}
+                        <div className="w-full md:w-auto flex-1 relative z-10 text-center md:text-left">
+                            <p className="text-xs sm:text-sm opacity-90 font-bold tracking-widest uppercase mb-2">Status Kesehatan Anda</p>
+                            
+                            <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black mt-2 tracking-tight drop-shadow-sm">
+                                {riskData ? riskData.status : "Belum dievaluasi"}
+                            </h3>
 
-                        <p className="text-xs sm:text-sm mt-2 opacity-90 leading-relaxed">
-                            Yuk mulai penilaian untuk melihat kondisi kesehatan Anda saat ini.
-                        </p>
+                            <p className="text-sm sm:text-base mt-4 opacity-90 leading-relaxed max-w-lg font-medium mx-auto md:mx-0">
+                                Pantau dan lakukan penilaian secara berkala untuk mengetahui potensi risiko prediabetes dan menjaga kesehatan Anda.
+                            </p>
+                        </div>
 
-                        <button 
-                            onClick={() => navigate("/analisis")}
-                            className="mt-4 w-full bg-white text-[#0072CE] font-semibold py-2.5 sm:py-3 text-sm sm:text-base rounded-xl hover:bg-gray-100 transition-all duration-200"
-                        >
-                            {riskData ? "Cek Kembali Risiko Anda":"Cek Risiko Anda Sekarang"}
-                        </button>
+                        {/* Kanan: Skor Raksasa & Tombol */}
+                        <div className="w-full md:w-auto flex flex-col items-center md:items-end gap-6 relative z-10 border-t md:border-t-0 md:border-l border-white/20 pt-6 md:pt-0 md:pl-10">
+                            {riskData ? (
+                                <div className="text-center md:text-right">
+                                    <p className="text-xs sm:text-sm font-bold uppercase tracking-widest opacity-80 mb-1">Skor Risiko</p>
+                                    <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black leading-none drop-shadow-lg tracking-tighter">
+                                        {riskData.score}<span className="text-3xl sm:text-4xl opacity-70 ml-1">%</span>
+                                    </h1>
+                                </div>
+                            ) : null}
+
+                            <button 
+                                onClick={() => navigate(riskData ? "/hasil" : "/analisis")}
+                                className={`w-full md:w-auto bg-white ${riskStyles.btnText} font-extrabold py-3.5 px-8 text-sm sm:text-base rounded-2xl hover:scale-105 hover:shadow-xl transition-all duration-300 shadow-lg flex items-center justify-center gap-2`}
+                            >
+                                {riskData ? "Lihat Detail Analisis" : "Cek Risiko Sekarang"}
+                                <span className="material-symbols-outlined text-[20px]">{riskData ? "query_stats" : "arrow_forward"}</span>
+                            </button>
+                        </div>
                     </div>
 
                     
@@ -322,8 +355,7 @@ function Dashboard() {
                             </div>
 
                             <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-                                <div className="flex justify-between items-center mb-6">
-                                    <p className="font-medium text-gray-800">Tracking Harian</p>
+                                <div className="flex justify-end items-center mb-6">
                                     {isCompletedToday && (
                                         <span className="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full flex items-center gap-1 font-bold">
                                             ✓ Tersimpan
