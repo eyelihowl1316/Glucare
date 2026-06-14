@@ -10,37 +10,29 @@ import axios from "axios";
 
 const questions = [
     {
-        question: "Usia Anda saat ini?",
-        options: ["20-29 Tahun", "30-39 Tahun", "40+ Tahun"],
+        question: "Berapa Usia Anda saat ini?",
+        options: ["20-29 tahun", "30-39 tahun", "40+ tahun"],
     },
     {
-        question: "Ada anggota keluarga dengan diabetes?",
-        options: ["Ada", "Tidak ada", "Tidak Tahu"],
+        question: "Jenis kelamin Anda?",
+        options: ["Laki-laki", "Perempuan"],
     },
     {
-        question: "Seberapa sering Anda berolahraga per minggu?",
-        options: ["Tidak pernah", "1-2 kali", "3+ kali"],
+        question: "Bagaimana kategori BMI Anda?",
+        options: ["Normal", "Overweight", "Obesitas"],
     },
     {
-        question: "Seberapa sering konsumsi minuman manis atau makanan olahan?",
-        options: ["Setiap hari", "Beberapa kali dalam seminggu", "Sangat jarang"],
+        question: "Bagaimana kondisi lingkar pinggang Anda?",
+        options: ["Normal", "Berisiko"],
     },
     {
-        question: "Bagaimana ukuran lingkar pinggang Anda?",
-        options: ["Normal", "Agak Besar", "Besar (Gemuk perut)"],
+        question: "Apakah Anda memiliki hipertensi?",
+        options: ["Ya", "Tidak"],
     },
     {
         question:
-            "Apakah Anda sering haus berlebih, sering buang air kecil, dan mudah lelah?",
-        options: ["Iya", "Tidak terlalu", "Tidak sama sekali"],
-    },
-    {
-        question: "Berapa jam Anda tidur per-malam?",
-        options: ["<5 jam", "5-6 jam", "7-8 jam"],
-    },
-    {
-        question: "Bagaimana tingkat stress harian Anda?",
-        options: ["Tinggi", "Sedang", "Rendah"],
+            "Apakah Anda pernah memiliki riwayat kelebihan berat badan?",
+        options: ["Ya", "Tidak"],
     },
 ];
 
@@ -73,19 +65,50 @@ export default function Kuesioner() {
                     localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
                 );
 
-                await axios.post("http://localhost:5000/api/kuesioner/submit", {
-                    user_id: currentUser?.id,
-                    usia: answers[0] || "",
-                    riwayat_keluarga: answers[1] || "",
-                    olahraga: answers[2] || "",
-                    makanan_manis: answers[3] || "",
-                    lingkar_pinggang: answers[4] || "",
-                    gejala_diabetes: answers[5] || "",
-                    jam_tidur: answers[6] || "",
-                    tingkat_stress: answers[7] || ""
-                });
+                const questionnaireData = {
+                    age_band:
+                        answers[0] === "20-29 tahun" 
+                        ? 0 
+                            : answers[0] === "30-39 tahun" 
+                            ? 1 : 2,
 
-                navigate("/hasil", {state: answers});
+                    gender:
+                        answers[1] === "Laki-laki" ? 0: 1,
+
+                    bmi_category:
+                        answers[2] === "Normal" 
+                        ? 0 
+                            : answers[2] === "Overweight" 
+                            ? 1 
+                            : 2,
+
+                    waist_category:
+                        answers[3] === "Normal" 
+                        ? 0 
+                        : 1,
+                    
+                    hypertension:
+                        answers[4] === "Ya" 
+                        ? 1
+                        : 0,
+                    
+                    overweight_history:
+                        answers[5] === "Ya" 
+                        ? 1
+                        :0,
+                };
+
+                const response = await axios.post("http://localhost:5000/api/kuesioner/submit", {
+                        user_id: currentUser?.id,
+                        ...questionnaireData,
+                    });
+
+                navigate("/hasil", {
+                    state: {
+                        result: response.data,
+                        input: questionnaireData,
+                        mode:"questionnaire",}
+                    });
             } catch (err) {
                 console.error(err);
                 alert("Gagal menyimpan kuesioner");

@@ -2,31 +2,143 @@ import Sidebar from "../components/Sidebar";
 import HeaderAnalisis from "../components/HeaderAnalisis";
 import Button from "../components/Button";
 import warning from "../assets/warning.png";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useSidebar } from "../hooks/useSidebar";
 
 const HasilAnalisis = () => {
     const navigate = useNavigate()
     const { isOpen } = useSidebar();
+    const location = useLocation();
 
-    const data ={
-        score: 80,
-        risk :"Risiko Tinggi",
-        status : "Indikasi Diabetes",
-        umur:"30 tahun",
-        bmi:"42",
-        risikoTambahan: "42%",
-        faktor: [
-            "HbA1c >= 6.5% - mengarah diabetes",
-            "Gula puasa normal",
-            "BMI >= 27.5 - obesitas",
-        ],
-        interpretasi : {
-            hba1c : "Diabetes",
-            gdp : "Normal",
-        },
-    };
+    const result = location.state?.result;
+    const input = location.state?.input;
+    const mode = location.state?.mode || "lab";
+
+    const ageBandLabels = ["20-29 tahun", "30-39 tahun", "40+ tahun"];
+    const bmiCategoryLabels = ["Normal", "Overweight", "Obesitas"];
+
     
+
+    const score = (() => {
+    if (!result) return 0;
+
+    if (mode === "lab") {
+        return result.risk_level === "Normal"
+            ? (result.predict_proba[1] + result.predict_proba[2]) * 100
+            : result.risk_level === "Prediabetes"
+            ? result.predict_proba[2] * 100
+            : result.predict_proba[2] * 100;
+    }
+    
+    return 0;
+})();
+
+    const data = {
+    score: score.toFixed(1),
+
+    risk:
+        mode === "lab"
+            ? result?.risk_level || "-"
+            : result?.risk_level === "low"
+            ? "Risiko Rendah"
+            : result?.risk_level === "medium"
+            ? "Risiko Sedang"
+            : "Risiko Tinggi",
+
+    status:
+        mode === "lab"
+            ? result?.risk_level === "Normal"
+                ? "Risiko rendah, tetap jaga pola hidup sehat!"
+                : result?.risk_level === "Prediabetes"
+                ? "Terdapat indikasi prediabetes"
+                : "Terdapat indikasi diabetes"
+            : result?.risk_level === "low"
+            ? "Risiko diabetes rendah."
+            : result?.risk_level === "medium"
+            ? "Terdapat beberapa faktor risiko diabetes."
+            : "Risiko diabetes tinggi, disarankan konsultasi lebih lanjut.",
+
+    umur: 
+        mode === "lab"
+            ? `${input?.age ?? "-"} tahun`
+            : ageBandLabels[input?.age_band] || "-",
+
+    bmi: 
+        mode === "lab"
+            ? input?.bmi?.toFixed(1) ?? "-"
+            : bmiCategoryLabels[input?.bmi_category] || "-",
+
+    probabilitas:
+        mode === "lab"
+            ? result
+                ? `${(
+                    result.predict_proba[result.prediction_raw] * 100
+                ).toFixed(1)}%`
+                : "-"
+            : "-"
+};
+
+    const riskColor =
+    mode === "lab"
+        ? result?.risk_level === "Normal"
+            ? "text-green-600"
+            : result?.risk_level === "Prediabetes"
+            ? "text-yellow-600"
+            : "text-red-600"
+        : result?.risk_level === "low"
+        ? "text-green-600"
+        : result?.risk_level === "medium"
+        ? "text-yellow-600"
+        : "text-red-600";
+
+    const barColor =
+    mode === "lab"
+        ? result?.risk_level === "Normal"
+            ? "bg-green-500"
+            : result?.risk_level === "Prediabetes"
+            ? "bg-yellow-500"
+            : "bg-red-500"
+        : result?.risk_level === "low"
+        ? "bg-green-500"
+        : result?.risk_level === "medium"
+        ? "bg-yellow-500"
+        : "bg-red-500";
+
+    const faktor = [];
+
+    if (mode === "lab") {
+        if (input?.glucose_fasting >= 126) 
+        faktor.push("Gula darah puasa tinggi");
+        if (input?.bmi >= 27.5) 
+            faktor.push("BMI menunjukkan obesitas");
+        if((input?.gender === 1 && input?.waist_cm >= 90) ||
+            (input?.gender === 0 && input?.waist_cm >= 80) 
+        ) {
+            faktor.push("Lingkar pinggang berisiko");
+        }
+        if (input?.bp_systolic >= 140 || input?.bp_diastolic >= 90) {
+            faktor.push("Tekanan darah tinggi");
+        }
+    }else {
+        if (input?.bmi_category === 2)
+        faktor.push("BMI menunjukkan obesitas");
+    else if (input?.bmi_category === 1)
+        faktor.push("BMI menunjukkan overweight");
+
+    if (input?.waist_category === 1)
+        faktor.push("Lingkar pinggang berisiko");
+
+    if (input?.hypertension === 1)
+        faktor.push("Memiliki riwayat hipertensi");
+
+    if (input?.overweight_history === 1)
+        faktor.push("Memiliki riwayat kelebihan berat badan"); 
+    }
+        
+    if (faktor.length === 0) {
+        faktor.push("Tidak ada faktor risiko utama teridentifikasi");
+    }
+
     return (
         <div className="flex min-h-screen">
             <Sidebar />
@@ -45,22 +157,24 @@ const HasilAnalisis = () => {
 
                             <div className="text-red-500 text-4xl mb-4">
 
-                                <h1 className="text-3xl font-bold text-red-600">
-                                    {data.score}%
+                                <h1 className={`text-3xl font-bold ${riskColor}`}>
+                                    {mode === "lab" ? `${data.score}%` : `${data.risk}`}
                                 </h1>
 
-                                <p className="text-sm text-red-500 mb-2">
-                                    {data.risk}
-                                </p>
 
                                 <p className="text-sm text-gray-500 mb-2">
                                     {data.status}
                                 </p>
 
-                                <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                                    <div className="bg-red-500 h-2 rounded-full" style={{width : `${data.score}%`}}>
+                                {mode === "lab" && (
+                                    <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+                                        <div
+                                            className={`${barColor} h-2 rounded-full`}
+                                            style={{ width: `${data.score}%` }}
+                                        />
                                     </div>
-                                </div>
+                                )}
+
 
                                 <div className="grid grid-cols-3 gap-4 w-full text-sm">
                                     <div className="bg-red-50 p-3 rounded-lg">
@@ -77,21 +191,34 @@ const HasilAnalisis = () => {
                                             {data.bmi}
                                         </p>
                                         <p className="text-xs text-gray-500">
-                                            Usia Metabolik
+                                            BMI
                                         </p>
                                     </div>  
-                                    <div className="bg-red-50 p-3 rounded-lg">
-                                        <p className="font-semibold text-red-600">
-                                            {data.risikoTambahan}
-                                        </p>
-                                        <p className="text-xs text-gray-500">
-                                            Risiko 5 Tahun
-                                        </p>
+
+                                    {mode === "lab" && (
+                                        <div className="bg-red-50 p-3 rounded-lg">
+                                            <p className="font-semibold text-red-600">
+                                                {data.probabilitas}
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                Probabilitas Diabetes
+                                            </p>
                                         </div>  
+                                    )}
+
+                                    {mode === "questionnaire" && (
+                                        <div className="bg-red-50 p-3 rounded-lg">
+                                            <p className="font-bold text-red-600 text-lg">
+                                                {data.risk}
+                                            </p>
+                                        </div>
+                                    )}
+
+
+                                    
                                 </div>
 
                                 <p className="text-gray-500 text-xs mt-4 max-w-md">
-                                    Segera konsultasikan ke dokter.<br></br>
                                     Program intervensi 90 hari Glucare sangat direkomendasikan
                                 </p>
                             </div>
@@ -104,26 +231,54 @@ const HasilAnalisis = () => {
                                     Faktor Risiko Teridentifikasi
                                 </h3>
                                 <ul className="text-sm text-gray-600 list-disc pl-4 space-y-1">
-                                    {data.faktor.map((item, index) => (
+                                    {faktor.map((item, index) => (
                                         <li key={index}>{item}</li>
                                     ))}
                                 </ul>
                             </div>
+                            
+                            {mode === "lab" && (
+                                <div className="bg-blue-50 p-4 rounded-xl shadow">
+                                    <h3 className="font-semibold mb-2">
+                                        Interpetasi Lab
+                                    </h3>
 
-                            <div className="bg-blue-50 p-4 rounded-xl shadow">
-                                <h3 className="font-semibold mb-2">
-                                    Interpetasi Lab
-                                </h3>
+                                    <p className="text-sm text-gray-600">
+                                        Gula Darah Puasa: {" "}{input?.glucose_fasting >= 126 ? "Tinggi" : "Normal"} <br></br>
+                                        BMI : {" "}{input?.bmi >= 27.5 ? "Obesitas" : "Normal"} <br></br>
+                                        Tekanan Darah: {" "}{input?.bp_systolic >= 140 ? "Tinggi" : "Normal"} <br></br>
+                                    </p>
+                                </div>
+                            )}
 
-                                <p className="text-sm text-gray-600">
-                                    HbA1c:{data.interpretasi.hba1c} <br />
-                                    GDP: {data.interpretasi.gdp}
-                                </p>
-                            </div>
+                            {mode === "questionnaire" && (
+                                <div className="bg-blue-50 p-4 rounded-xl shadow">
+                                    <h3 className="font-semibold mb-2">
+                                        Interpretasi Risiko
+                                    </h3>
+
+                                    <p className="text-sm text-gray-600">
+                                        Penilaian risiko didasarkan pada usia,
+                                        jenis kelamin, BMI, lingkar pinggang,
+                                        riwayat hipertensi, dan riwayat kelebihan berat badan.
+                                    </p>
+                                </div>
+                            )}
+
+                            
                         </div>
 
                         <div className="flex flex-col items-center mt-8 gap-4">
-                            <Button variant="primary"  onClick={() => navigate("/rencana")}>
+                            <Button
+                                variant="primary"
+                                onClick={() => {
+                                    const user = JSON.parse(localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser") || "{}");
+                                    if (user?.id) {
+                                        localStorage.setItem(`started90days_${user.id}`, "true");
+                                    }
+                                    navigate("/rencana");
+                                }}
+                            >
                                 Mulai rencana 90 hari
                             </Button>
                             <Button variant ="secondary" onClick={() => navigate("/analisis")}>

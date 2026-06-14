@@ -1,4 +1,5 @@
 import { useEffect, useState} from "react";
+
 import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../assets/Profile.jpg"
@@ -11,7 +12,7 @@ function Dashboard(){
     const navigate = useNavigate();
     const { isOpen } = useSidebar();
 
-    const riskData = null;
+    const [riskData, setRiskData] = useState(null);
 
     const [streak, setStreak] = useState(0);
     const [day, setDay] = useState(0);
@@ -41,7 +42,111 @@ function Dashboard(){
 
         window.addEventListener("focus", getUser);
         return () => window.removeEventListener("focus", getUser);       
-    }, [location.pathname]);
+    }, []);
+
+    
+    useEffect(() => {
+        const fetchLatestRisk = async () => {
+            const user = JSON.parse(
+                localStorage.getItem("currentUser") ||
+                sessionStorage.getItem("currentUser")
+            );
+
+            if (!user?.id) return;
+
+            let labResult = null;
+            let kuesionerResult = null;
+
+            try {
+                const res = await axios.get(`http://localhost:5000/api/lab/${user.id}`);
+                labResult = res.data;
+            } catch (err) {
+                // belum ada data lab, abaikan
+            }
+
+            try {
+                const res = await axios.get(`http://localhost:5000/api/kuesioner/${user.id}`);
+                kuesionerResult = res.data;
+            } catch (err) {
+                // belum ada data kuesioner, abaikan
+            }
+
+            if (!labResult && !kuesionerResult) {
+                setRiskData(null);
+                return;
+            }
+
+            
+            let latest;
+            let mode;
+
+            if (labResult && kuesionerResult) {
+                if (new Date(labResult.created_at) > new Date(kuesionerResult.created_at)) {
+                    latest = labResult;
+                    mode = "lab";
+                } else {
+                    latest = kuesionerResult;
+                    mode = "questionnaire";
+                }
+            } else if (labResult) {
+                latest = labResult;
+                mode = "lab";
+            } else {
+                latest = kuesionerResult;
+                mode = "questionnaire";
+            }
+
+            const riskLevel = latest.risk_level;
+
+            const statusText =
+                mode === "lab"
+                    ? riskLevel === "Normal"
+                        ? "Risiko Rendah"
+                        : riskLevel === "Prediabetes"
+                        ? "Risiko Sedang - Prediabetes"
+                        : "Risiko Tinggi - Diabetes"
+                    : riskLevel === "low"
+                    ? "Risiko Rendah"
+                    : riskLevel === "medium"
+                    ? "Risiko Sedang"
+                    : "Risiko Tinggi";
+
+            const colorClass =
+                mode === "lab"
+                    ? riskLevel === "Normal"
+                        ? "from-green-500 to-green-400"
+                        : riskLevel === "Prediabetes"
+                        ? "from-yellow-500 to-yellow-400"
+                        : "from-red-500 to-red-400"
+                    : riskLevel === "low"
+                    ? "from-green-500 to-green-400"
+                    : riskLevel === "medium"
+                    ? "from-yellow-500 to-yellow-400"
+                    : "from-red-500 to-red-400";
+
+            
+            const score =
+                mode === "lab"
+                    ? (
+                        riskLevel === "Normal"
+                            ? (parseFloat(latest.probability_prediabetes) + parseFloat(latest.probability_diabetes)) * 100
+                            : parseFloat(latest.probability_diabetes) * 100
+                      ).toFixed(1)
+                    : null;
+
+            setRiskData({
+                mode,
+                status: statusText,
+                cta: latest.cta,
+                colorClass,
+                score,
+            });
+        };
+
+        fetchLatestRisk();
+        window.addEventListener("focus", fetchLatestRisk);
+        return () => window.removeEventListener("focus", fetchLatestRisk);
+    }, []);
     
     const hour = new Date().getHours();
     let greeting ="Good Morning";
@@ -59,12 +164,17 @@ function Dashboard(){
         const diffTime = today - start;
         const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-        setDay(diffDays);
-
+        
         const checkedDays = data.checkedDays || [];
-        setStreak(checkedDays.length);
+        const nextStreak = checkedDays.length;
+
+        setTimeout(() => {
+            setDay(diffDays);
+            setStreak(nextStreak);
+        }, 0);
     }, []);
 
+   
     return(
         <div className={`flex-1 transition-all duration-300 ${isOpen ? 'lg:ml-60' : 'lg:ml-24'}`}>
             <Sidebar />
@@ -87,15 +197,21 @@ function Dashboard(){
                     </div>
 
                     
-                    <div className="mt-6 sm:mt-10 max-w-5xl w-full bg-gradient-to-r from-[#0072CE] to-[#3E97FF] text-white p-4 sm:p-6 rounded-2xl shadow-md mb-6">
+                    <div className={`mt-6 sm:mt-10 max-w-5xl w-full bg-gradient-to-r ${riskData ? riskData.colorClass : "from-[#0072CE] to-[#3E97FF]"} text-white p-4 sm:p-6 rounded-2xl shadow-md mb-6`}>
                         <p className="text-xs sm:text-sm opacity-90">Status Risiko</p>
 
                         <h3 className="text-lg sm:text-xl font-bold mt-1">
-                            {riskData ? riskData.status : "Belum ada data"}
+                            {riskData
+                                ? riskData.mode === "lab"
+                                    ? `${riskData.score}% - ${riskData.status}`
+                                    : riskData.status
+                                : "Belum ada data"}
                         </h3>
 
                         <p className="text-xs sm:text-sm mt-2 opacity-90 leading-relaxed">
-                            Yuk mulai penilaian untuk melihat kondisi kesehatan Anda saat ini.
+                            {riskData
+                                ? riskData.cta
+                                : "Yuk mulai penilaian untuk melihat kondisi kesehatan Anda saat ini."}
                         </p>
 
                         <button 
@@ -106,7 +222,9 @@ function Dashboard(){
                         </button>
                     </div>
 
-                    <InputHarian />
+                    {currentUser?.id && localStorage.getItem(`started90days_${currentUser.id}`) === "true" ? (
+                        <InputHarian />
+                    ) : null}
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8 max-w-5xl w-full">
                         <div className="bg-white rounded-2xl shadow-sm sm:shadow-md p-4 sm:p-5 hover:shadow-md transition-shadow">

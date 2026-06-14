@@ -10,10 +10,10 @@ const getPrediction = async (req, res) => {
             });
         }
 
-        const apiUrl = process.env.AI_MONITORING_API_URL || "https://itzvynn-glucare-90-day-monitoring.hf.space";
+        const apiUrl = process.env.AI_MONITORING_API_URL || "https://itzvynn-glucare-backend.hf.space";
         
-        console.log(`Forwarding prediction request to AI API: ${apiUrl}/predict`);
-        const response = await axios.post(`${apiUrl}/predict`, {
+        console.log(`Forwarding prediction request to AI API: ${apiUrl}/assessment/day30`);
+        const response = await axios.post(`${apiUrl}/assessment/day30`, {
             patient_id: patient_id || null,
             records: records
         });

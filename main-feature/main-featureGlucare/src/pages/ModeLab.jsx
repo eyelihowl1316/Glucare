@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState } from "react";
 import Sidebar from "../components/Sidebar";
 import HeaderAnalisis from "../components/HeaderAnalisis";
 import { useNavigate } from "react-router-dom";
@@ -10,12 +10,16 @@ export default function ModeLab() {
     const { isOpen } = useSidebar();
 
     const [form, setForm] = useState({
-        hba1c: "",
+        usia: "",
         gula: "",
         berat: "",
         tinggi: "",
-        riwayatKeluarga: "",
-        riwayatDiabetes: "",
+        lingkarPinggang: "",
+        hdl: "",
+        trigliserida: "",
+        sistolik: "",
+        diastolik: "",
+        gender: "",
     });
 
     const [errors, setErrors] = useState({});
@@ -44,7 +48,7 @@ export default function ModeLab() {
         if (errors[name]) {
             setErrors({
                 ...errors,
-                [name]: ""
+                [name]: "",
             });
         }
     };
@@ -52,15 +56,11 @@ export default function ModeLab() {
     const validateForm = () => {
         const newErrors = {};
 
-        
-        if (!form.hba1c || form.hba1c === "") newErrors.hba1c = "HbA1c wajib diisi";
-        if (!form.gula || form.gula === "") newErrors.gula = "Gula darah wajib diisi";
-        if (!form.berat || form.berat === "") newErrors.berat = "Berat badan wajib diisi";
-        if (!form.tinggi || form.tinggi === "") newErrors.tinggi = "Tinggi badan wajib diisi";
-
-        
-        if (!form.riwayatKeluarga || form.riwayatKeluarga === "") newErrors.riwayatKeluarga = "Pilih riwayat keluarga";
-        if (!form.riwayatDiabetes || form.riwayatDiabetes === "") newErrors.riwayatDiabetes = "Pilih riwayat diabetes";
+        Object.entries(form).forEach(([key, value]) => {
+            if (!value) {
+                newErrors[key] = "Field ini wajib diisi";
+            }
+        });
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -73,20 +73,40 @@ export default function ModeLab() {
                     localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
                 );
 
-                await axios.post("http://localhost:5000/api/lab/submit", {
-                    user_id: currentUser?.id,
-                    hba1c: parseFloat(form.hba1c) || 0,
-                    gula_darah_puasa: parseFloat(form.gula) || 0,
-                    berat_badan: parseFloat(form.berat) || 0,
-                    tinggi_badan: parseFloat(form.tinggi) || 0,
-                    riwayat_keluarga: form.riwayatKeluarga || "",
-                    riwayat_diabetes: form.riwayatDiabetes || ""
-                });
+                const response = await axios.post("http://localhost:5000/api/lab/submit", {
+                        user_id: currentUser?.id,
+                        age: parseInt(form.usia),
+                        gender: form.gender === "Laki-Laki" ? 1 : 0,
+                        glucose_fasting: parseFloat(form.gula),
+                        waist_cm: parseFloat(form.lingkarPinggang),
+                        weight: parseFloat(form.berat),
+                        height: parseFloat(form.tinggi),
+                        hdl: parseFloat(form.hdl),
+                        triglycerides: parseFloat(form.trigliserida),
+                        bp_systolic: parseInt(form.sistolik),
+                        bp_diastolic: parseInt(form.diastolik),
+                    });
 
-                navigate("/hasil");
-            } catch (error) {
-                console.error(error);
-                alert("Gagal menyimpan data lab");
+                const bmi = (parseFloat(form.berat) / Math.pow(parseFloat(form.tinggi) / 100, 2)).toFixed(1);
+
+                navigate("/hasil", {
+                    state: {
+                        result: response.data,
+                        input: {
+                            age: parseInt(form.usia),
+                            glucose_fasting: parseFloat(form.gula),
+                            waist_cm: parseFloat(form.lingkarPinggang),
+                            bmi: parseFloat(bmi),
+                            bp_systolic: parseInt(form.sistolik),
+                            bp_diastolic: parseInt(form.diastolik),
+                            gender: form.gender === "Laki-Laki" ? 1 : 0,
+                        },
+                        mode:"lab"
+                    },
+                });
+            } catch (err) {
+                console.error("Gagal submit data lab:", err);
+                alert("Terjadi kesalahan saat mengirim data. Silakan coba lagi.");
             }
         }
     };
@@ -108,25 +128,22 @@ export default function ModeLab() {
                     <div className="bg-white p-5 sm:p-6 rounded-2xl shadow-sm border border-gray-100 space-y-5">
 
                         <div>
-                            <label className="text-sm text-black font-semibold">HbA1c (%) <span className="text-xs text-gray-500 font-normal">(hanya bisa diisi oleh angka)</span></label>
+                            <label className="text-sm text-black font-semibold">Usia<span className="text-xs text-gray-500 font-normal">(hanya bisa diisi oleh angka)</span></label>
                             <div className="relative mt-1">
                                 <input
                                     type="text"
-                                    name="hba1c"
-                                    value={form.hba1c}
+                                    name="usia"
+                                    value={form.usia}
                                     onChange={handleChange}
                                     className={`w-full bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none ${
-                                        errors.hba1c ? "border border-red-300 bg-red-50" : ""
+                                        errors.usia ? "border border-red-300 bg-red-50" : ""
                                     }`}
                                 />
-                                <span className="absolute right-4 top-3 text-[#0072CE] text-sm">%</span>
+                                <span className="absolute right-4 top-3 text-[#0072CE] text-sm">tahun</span>
                             </div>
-                            {errors.hba1c && (
-                                <p className="text-xs text-red-500 mt-1">{errors.hba1c}</p>
+                            {errors.usia && (
+                                <p className="text-xs text-red-500 mt-1">{errors.usia}</p>
                             )}
-                            <p className="text-xs text-gray-400 mt-1">
-                                Normal: &lt; 5.7 • Prediabetes: 5.7–6.4 • Diabetes: ≥6.5
-                            </p>
                         </div>
 
                         
@@ -194,61 +211,129 @@ export default function ModeLab() {
                                 BMI akan dihitung otomatis
                             </p>
                         </div>
+
+                        <div>
+                            <label className="text-sm text-black font-semibold">Lingkar Pinggang<span className="text-xs text-gray-500 font-normal">(hanya bisa diisi oleh angka)</span></label>
+                            <div className="relative mt-1">
+                                <input
+                                    type="text"
+                                    name="lingkarPinggang"
+                                    value={form.lingkarPinggang}
+                                    onChange={handleChange}
+                                    className={`w-full bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none ${
+                                        errors.lingkarPinggang ? "border border-red-300 bg-red-50" : ""
+                                    }`}
+                                />
+                                <span className="absolute right-4 top-3 text-[#0072CE] text-sm">cm</span>
+                            </div>
+                            {errors.lingkarPinggang && (
+                                <p className="text-xs text-red-500 mt-1">{errors.lingkarPinggang}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-black font-semibold">HDL<span className="text-xs text-gray-500 font-normal">(hanya bisa diisi oleh angka)</span></label>
+                            <div className="relative mt-1">
+                                <input
+                                    type="text"
+                                    name="hdl"
+                                    value={form.hdl}
+                                    onChange={handleChange}
+                                    className={`w-full bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none ${
+                                        errors.hdl ? "border border-red-300 bg-red-50" : ""
+                                    }`}
+                                />
+                                <span className="absolute right-4 top-3 text-[#0072CE] text-sm">mg/dL</span>
+                            </div>
+                            {errors.hdl && (
+                                <p className="text-xs text-red-500 mt-1">{errors.hdl}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-black font-semibold">trigliserida<span className="text-xs text-gray-500 font-normal">(hanya bisa diisi oleh angka)</span></label>
+                            <div className="relative mt-1">
+                                <input
+                                    type="text"
+                                    name="trigliserida"
+                                    value={form.trigliserida}
+                                    onChange={handleChange}
+                                    className={`w-full bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none ${
+                                        errors.trigliserida ? "border border-red-300 bg-red-50" : ""
+                                    }`}
+                                />
+                                <span className="absolute right-4 top-3 text-[#0072CE] text-sm">mg/dL</span>
+                            </div>
+                            {errors.trigliserida && (
+                                <p className="text-xs text-red-500 mt-1">{errors.trigliserida}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-black font-semibold">sistolik<span className="text-xs text-gray-500 font-normal">(hanya bisa diisi oleh angka)</span></label>
+                            <div className="relative mt-1">
+                                <input
+                                    type="text"
+                                    name="sistolik"
+                                    value={form.sistolik}
+                                    onChange={handleChange}
+                                    className={`w-full bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none ${
+                                        errors.sistolik ? "border border-red-300 bg-red-50" : ""
+                                    }`}
+                                />
+                                <span className="absolute right-4 top-3 text-[#0072CE] text-sm">mmHg</span>
+                            </div>
+                            {errors.sistolik && (
+                                <p className="text-xs text-red-500 mt-1">{errors.sistolik}</p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="text-sm text-black font-semibold">Diastolik<span className="text-xs text-gray-500 font-normal">(hanya bisa diisi oleh angka)</span></label>
+                            <div className="relative mt-1">
+                                <input
+                                    type="text"
+                                    name="diastolik"
+                                    value={form.diastolik}
+                                    onChange={handleChange}
+                                    className={`w-full bg-gray-100 rounded-xl px-4 py-3 text-sm outline-none ${
+                                        errors.diastolik ? "border border-red-300 bg-red-50" : ""
+                                    }`}
+                                />
+                                <span className="absolute right-4 top-3 text-[#0072CE] text-sm">mmHg</span>
+                            </div>
+                            {errors.diastolik && (
+                                <p className="text-xs text-red-500 mt-1">{errors.diastolik}</p>
+                            )}
+                        </div>
                     </div>
 
                     
                     <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
                         <p className="text-sm text-black-600 mb-3">
-                            Riwayat Keluarga Diabetes
+                            Jenis Kelamin
                         </p>
 
                         <div className="flex gap-2">
-                            {["Ya", "Tidak", "Tidak Tahu"].map((item) => (
+                            {["Laki-Laki", "Perempuan"].map((item) => (
                                 <button
                                     key={item}
-                                    onClick={() => handleSelect("riwayatKeluarga", item)}
+                                    onClick={() => handleSelect("gender", item)}
                                     className={`px-4 py-2 rounded-full text-sm transition ${
-                                        form.riwayatKeluarga === item
+                                        form.gender === item
                                             ? "bg-[#0072CE] text-white"
                                             : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-                                    } ${errors.riwayatKeluarga ? "ring-1 ring-red-200" : ""}`}
+                                    } ${errors.gender ? "ring-1 ring-red-200" : ""}`}
                                 >
                                     {item}
                                 </button>
                             ))}
                         </div>
-                        {errors.riwayatKeluarga && (
-                            <p className="text-xs text-red-500 mt-2">{errors.riwayatKeluarga}</p>
+                        {errors.gender && (
+                            <p className="text-xs text-red-500 mt-2">{errors.gender}</p>
                         )}
                     </div>
 
-                    
-                    <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                        <p className="text-sm text-black-600 mb-3">
-                            Riwayat Diabetes
-                        </p>
-
-                        <div className="flex gap-2">
-                            {["Ya", "Tidak"].map((item) => (
-                                <button
-                                    key={item}
-                                    onClick={() => handleSelect("riwayatDiabetes", item)}
-                                    className={`px-4 py-2 rounded-full text-sm transition ${
-                                        form.riwayatDiabetes === item
-                                            ? "bg-[#0072CE] text-white"
-                                            : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-                                    } ${errors.riwayatDiabetes ? "ring-1 ring-red-200" : ""}`}
-                                >
-                                    {item}
-                                </button>
-                            ))}
-                        </div>
-                        {errors.riwayatDiabetes && (
-                            <p className="text-xs text-red-500 mt-2">{errors.riwayatDiabetes}</p>
-                        )}
-                    </div>
-
-                    
                     <div className="flex justify-center">
                         <button
                             onClick={handleSubmit}
