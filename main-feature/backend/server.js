@@ -10,6 +10,8 @@ const kuesionerRoutes = require("./routes/kuesionerRoutes");
 const labRoutes = require("./routes/labRoutes");
 const contactUsRoutes = require("./routes/contactUsRoutes");
 const monitoringRoutes = require("./routes/monitoringRoutes");
+const aiRoutes = require("./routes/aiRoutes");
+const planRoutes = require("./routes/planRoutes");
 
 const app = express();
 
@@ -23,6 +25,8 @@ app.use("/api/kuesioner", kuesionerRoutes);
 app.use("/api/lab", labRoutes);
 app.use("/api/contact-us", contactUsRoutes);
 app.use("/api/monitoring", monitoringRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/plan", planRoutes);
 
 app.use("/uploads", express.static("uploads"));
 
