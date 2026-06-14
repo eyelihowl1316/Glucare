@@ -6,7 +6,6 @@ import iconNext from "../assets/iconNext.svg";
 import iconFinish from "../assets/iconFinish.svg";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../hooks/useSidebar";
-import axios from "axios";
 
 const questions = [
     {
@@ -69,26 +68,30 @@ export default function Kuesioner() {
             setCurrentQuestion(currentQuestion + 1);
         } else {
             try {
-                const currentUser = JSON.parse(
-                    localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
-                );
+                let currentUser = null;
+                try {
+                    const rawUser = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
+                    if (rawUser && rawUser !== "undefined") {
+                        currentUser = JSON.parse(rawUser);
+                    }
+                } catch (e) { console.error("Error parsing user in Kuesioner", e); }
 
-                await axios.post("http://localhost:5000/api/kuesioner/submit", {
+                // Kirim jawaban mentah ke backend — backend yang mapping ke parameter AI
+                const { predictQuestionnaire } = await import("../services/glucareAI");
+                const result = await predictQuestionnaire({
                     user_id: currentUser?.id,
-                    usia: answers[0] || "",
-                    riwayat_keluarga: answers[1] || "",
-                    olahraga: answers[2] || "",
-                    makanan_manis: answers[3] || "",
-                    lingkar_pinggang: answers[4] || "",
-                    gejala_diabetes: answers[5] || "",
-                    jam_tidur: answers[6] || "",
-                    tingkat_stress: answers[7] || ""
+                    answers: answers
                 });
 
-                navigate("/hasil", {state: answers});
+                // Simpan hasil dari backend ke localStorage untuk HasilAnalisis
+                if (currentUser?.id) {
+                    localStorage.setItem(`aiAnalysisResult_${currentUser.id}`, JSON.stringify(result));
+                }
+
+                navigate("/hasil");
             } catch (err) {
-                console.error(err);
-                alert("Gagal menyimpan kuesioner");
+                console.error("Gagal saat memproses kuesioner AI:", err);
+                alert("Gagal melakukan analisis. Pastikan layanan AI sedang aktif.");
             }
         }
     };
