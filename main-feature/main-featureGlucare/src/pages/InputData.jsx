@@ -33,6 +33,14 @@ export default function InputData() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (!formData.nama || !formData.jeniskelamin || !formData.tanggallahir || !formData.noTelp) {
+            setAlert({
+                type: "error",
+                message: "Semua data wajib diisi!"
+            });
+            return;
+        }
+
         try {
             const currentUser = JSON.parse(
                 localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")

@@ -71,38 +71,31 @@ export default function Evaluasi() {
     useEffect(() => {
         if (!user?.id) { setLoading(false); return; }
 
-        // Ambil risiko awal dari localStorage (hasil analisis AI)
+        
         const rawAI = localStorage.getItem(`aiAnalysisResult_${user.id}`);
-if (rawAI) {
-    try {
-        const parsed = JSON.parse(rawAI);
-        const mode = parsed?.aiResult?.mode || parsed?.mode;
-        const level = parsed?.aiResult?.risk_level || null;
-        let score = null;
+            if (rawAI) {
+                try {
+                    const parsed = JSON.parse(rawAI);
+                    const mode = parsed?.aiResult?.mode || parsed?.mode;
+                    const level = parsed?.aiResult?.risk_level || null;
+                    let score = null;
 
-        if (mode === "lab" || mode === "clinical") {
-            // Mode lab/clinical: pakai predict_proba
+        if (mode === "lab") {
+            // Mode lab: pakai predict_proba
             const proba = parsed?.aiResult?.predict_proba || [];
-            if (proba.length > 0) {
-                score = Math.round((proba[1] + proba[2]) * 100);
-            } else {
-                // Fallback jika tidak ada proba
-                score = (level === "low" || level === "Normal") ? 25
-                    : (level === "medium" || level === "Prediabetes") ? 55
-                    : (level === "high" || level === "Diabetes") ? 85
-                    : null;
-            }
+            score = proba.length > 0 ? Math.round((proba[1] + proba[2]) * 100) : null;
         } else {
             // Mode kuesioner: konversi dari risk_level
-            score = (level === "low" || level === "Normal") ? 25
-                : (level === "medium" || level === "Prediabetes") ? 55
-                : (level === "high" || level === "Diabetes") ? 85
+            score = level === "low" ? 25
+                : level === "medium" ? 55
+                : level === "high" ? 85
                 : null;
         }
 
         setPrevRisk({ score, level });
     } catch (e) { }
 }
+
         // Fetch semua data dari backend secara paralel
         const loadAll = async () => {
             try {
