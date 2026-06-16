@@ -204,7 +204,7 @@ function Dashboard() {
     // Tentukan warna berdasarkan risiko
     const getRiskStyles = () => {
         if (!riskData) return { 
-            bg: "bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-indigo-500/20", 
+            bg: "bg-gradient-to-br from-[#0072CE] to-[#003A68] text-white shadow-indigo-500/20", 
             btnText: "text-indigo-600" 
         };
         if (riskData.risk === "Risiko Tinggi") return { 

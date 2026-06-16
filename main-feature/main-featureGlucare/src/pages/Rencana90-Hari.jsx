@@ -309,7 +309,7 @@ export default function Rencana90Hari() {
             {showGlucoseSuccess && (
                 <div className="fixed bottom-10 right-10 bg-white/95 backdrop-blur-xl border border-white/50 rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.15)] z-50 transform transition-all duration-500 flex items-center p-4 gap-4 pr-6 min-w-[320px] animate-[slideIn_0.5s_ease-out]">
                     <div className="relative flex items-center justify-center w-14 h-14 flex-shrink-0">
-                        {/* Efek glow di belakang ikon */}
+                        
                         <div className="absolute inset-0 bg-emerald-400 rounded-full blur-md opacity-40 animate-pulse"></div>
                         <div className="relative bg-gradient-to-br from-emerald-400 to-teal-600 rounded-full w-12 h-12 flex items-center justify-center shadow-inner border border-emerald-300/30">
                             <span className="material-symbols-outlined text-white text-[28px]">done</span>

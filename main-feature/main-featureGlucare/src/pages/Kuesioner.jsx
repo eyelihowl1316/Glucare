@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import HeaderAnalisis from "../components/HeaderAnalisis";
 import iconBack from "../assets/iconBack.svg";
@@ -6,6 +6,7 @@ import iconNext from "../assets/iconNext.svg";
 import iconFinish from "../assets/iconFinish.svg";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../hooks/useSidebar";
+import { FiAlertCircle, FiX } from "react-icons/fi";
 
 const questions = [
     {
@@ -49,7 +50,17 @@ export default function Kuesioner() {
 
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [answers, setAnswers] = useState({});
-    
+    const [toast, setToast] = useState(null);
+
+    const showError = (message) => {
+        setToast({ message, id: Date.now() });
+    };
+
+    useEffect(() => {
+        if (!toast) return;
+        const timer = setTimeout(() => setToast(null), 4500);
+        return () => clearTimeout(timer);
+    }, [toast]);
 
     const handleSelect = (option) => {
         setAnswers({
@@ -60,7 +71,7 @@ export default function Kuesioner() {
 
     const handleNext = async () => {
         if (!answers[currentQuestion]) {
-            alert("Silahkan pilih jawaban terlebih dahulu");
+            showError("Silahkan pilih jawaban terlebih dahulu");
             return;
         }
 
@@ -91,7 +102,7 @@ export default function Kuesioner() {
                 navigate("/hasil");
             } catch (err) {
                 console.error("Gagal saat memproses kuesioner AI:", err);
-                alert("Gagal melakukan analisis. Pastikan layanan AI sedang aktif.");
+                showError("Gagal melakukan analisis. Pastikan layanan AI sedang aktif.");
             }
         }
     };
@@ -107,6 +118,45 @@ export default function Kuesioner() {
     return (
         <div className="flex min-h-screen bg-gray-50">
             <Sidebar />
+
+            {toast && (
+                <div className="fixed top-20 inset-x-0 z-[10000] flex justify-center px-4 pointer-events-none">
+                    <div
+                        key={toast.id}
+                        role="alert"
+                        aria-live="assertive"
+                        className="toast-enter pointer-events-auto relative w-full max-w-sm overflow-hidden rounded-2xl border border-red-100 bg-white shadow-2xl"
+                    >
+                        <div className="flex items-start gap-3 px-4 py-3">
+                            <span className="mt-0.5 flex-shrink-0 text-red-500">
+                                <FiAlertCircle size={20} />
+                            </span>
+                            <p className="flex-1 text-sm leading-snug text-gray-800">{toast.message}</p>
+                            <button
+                                type="button"
+                                onClick={() => setToast(null)}
+                                aria-label="Tutup notifikasi"
+                                className="flex-shrink-0 text-gray-400 transition hover:text-gray-600">
+                                <FiX size={18} />
+                            </button>
+                        </div>
+                        <div className="toast-progress h-1 bg-red-500" />
+                    </div>
+                </div>
+            )}
+
+            <style>{`
+                @keyframes toastSlideIn {
+                    from { transform: translateY(-12px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+                @keyframes toastShrink {
+                    from { width: 100%; }
+                    to { width: 0%; }
+                }
+                .toast-enter { animation: toastSlideIn 0.25s ease-out; }
+                .toast-progress { animation: toastShrink 4.5s linear forwards; }
+            `}</style>
 
             <div className={`flex-1 transition-all duration-300 ${isOpen ? 'lg:ml-60' : 'lg:ml-24'}`}>
                 <HeaderAnalisis
