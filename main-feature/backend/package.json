@@ -20,8 +20,10 @@
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
     "mysql2": "^3.22.3",
+    "nodemailer": "^9.0.0",
     "passport": "^0.7.0",
-    "passport-jwt": "^4.0.1"
+    "passport-jwt": "^4.0.1",
+    "simple-statistics": "^7.9.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

@@ -10,7 +10,12 @@ const kuesionerRoutes = require("./routes/kuesionerRoutes");
 const labRoutes = require("./routes/labRoutes");
 const contactUsRoutes = require("./routes/contactUsRoutes");
 const monitoringRoutes = require("./routes/monitoringRoutes");
+<<<<<<< HEAD
 const dailyLogsRoutes = require("./routes/dailyLogsRoutes");
+=======
+const aiRoutes = require("./routes/aiRoutes");
+const planRoutes = require("./routes/planRoutes");
+>>>>>>> backend_90day
 
 const app = express();
 
@@ -24,9 +29,14 @@ app.use("/api/kuesioner", kuesionerRoutes);
 app.use("/api/lab", labRoutes);
 app.use("/api/contact-us", contactUsRoutes);
 app.use("/api/monitoring", monitoringRoutes);
+<<<<<<< HEAD
 app.use("/api/daily-logs", dailyLogsRoutes);
 
 
+=======
+app.use("/api/ai", aiRoutes);
+app.use("/api/plan", planRoutes);
+>>>>>>> backend_90day
 
 app.use("/uploads", express.static("uploads"));
 

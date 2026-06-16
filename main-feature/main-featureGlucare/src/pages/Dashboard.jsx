@@ -1,23 +1,92 @@
-import { useEffect, useState} from "react";
-
+import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import { useNavigate } from "react-router-dom";
 import defaultAvatar from "../assets/Profile.jpg"
 import { useSidebar } from "../hooks/useSidebar";
 import axios from "axios";
-import InputHarian from "../components/InputHarian";
+import { submitDailyTracking } from "../services/glucareAI";
 
-
-function Dashboard(){
+function Dashboard() {
     const navigate = useNavigate();
     const { isOpen } = useSidebar();
-
     const [riskData, setRiskData] = useState(null);
-
     const [streak, setStreak] = useState(0);
     const [day, setDay] = useState(0);
-
     const [currentUser, setCurrentUser] = useState(null);
+    const [currentDate, setCurrentDate] = useState("");
+    const [tasks, setTasks] = useState({
+        tidur: false,
+        langkah: false,
+        nutrisi: false
+    });
+    const [isCompletedToday, setIsCompletedToday] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isEnrolled, setIsEnrolled] = useState(false);
+    const [planTargets, setPlanTargets] = useState(null);
+    const [level, setLevel] = useState(1);
+    const [xp, setXp] = useState(0);
+    const [xpToNextLevel, setXpToNextLevel] = useState(100);
+
+    useEffect(() => {
+        const options = { weekday: 'long', day: 'numeric', month: 'long' };
+        setCurrentDate(new Date().toLocaleDateString('id-ID', options));
+    }, []);
+
+    // Membaca hasil AI yang sudah tersimpan di localStorage
+    useEffect(() => {
+        let user = null;
+        try {
+            const rawUser = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
+            if (rawUser && rawUser !== "undefined") {
+                user = JSON.parse(rawUser);
+            }
+        } catch (e) { console.error(e); }
+        
+        if (!user || !user.id) return;
+
+        const rawAiData = localStorage.getItem(`aiAnalysisResult_${user.id}`);
+        if (rawAiData) {
+            try {
+                const parsed = JSON.parse(rawAiData);
+                const aiRes = parsed.aiResult;
+                if (aiRes) {
+                    const proba = aiRes.predict_proba || [0,0,0];
+                    // Skor risiko = peluang prediabetes + peluang diabetes
+                    const score = Math.round((proba[1] + proba[2]) * 100);
+                    
+                    // Gunakan risk_level langsung dari AI
+                    const aiRiskLevel = aiRes.risk_level || "Diabetes";
+                    
+                    let risk = "Risiko Tinggi";
+                    let status = "Indikasi Diabetes";
+                    
+                    if (aiRiskLevel === "Normal" || aiRiskLevel === "low") {
+                        risk = "Aman";
+                        status = "Kondisi Normal";
+                    } else if (aiRiskLevel === "Prediabetes" || aiRiskLevel === "medium") {
+                        risk = "Risiko Sedang";
+                        status = "Berisiko Prediabetes";
+                    } else if (aiRiskLevel === "high") {
+                        risk = "Risiko Tinggi";
+                        status = "Indikasi Diabetes";
+                    }
+
+                    // Score calculation handling both modes
+                    let finalScore = score;
+                    if (parsed.mode === "questionnaire") {
+                        if (aiRiskLevel === "low") finalScore = 25;
+                        else if (aiRiskLevel === "medium") finalScore = 55;
+                        else if (aiRiskLevel === "high") finalScore = 85;
+                    }
+
+                    setRiskData({ score: finalScore, risk, status });
+                }
+            } catch (e) {
+                console.error("Gagal membaca AI data", e);
+            }
+        }
+    }, []);
+
     useEffect(() => {
         const getUser = async () => {
             const user = JSON.parse(
@@ -29,7 +98,6 @@ function Dashboard(){
                 try {
                     const response = await axios.get(`http://localhost:5000/api/auth/profile/${user.id}`);
                     setCurrentUser(response.data);
-                    
                     localStorage.setItem("currentUser", JSON.stringify(response.data));
                 } catch (error) {
                     console.error("Gagal mengambil data user:", error);
@@ -44,138 +112,117 @@ function Dashboard(){
         return () => window.removeEventListener("focus", getUser);       
     }, []);
 
-    
-    useEffect(() => {
-        const fetchLatestRisk = async () => {
-            const user = JSON.parse(
-                localStorage.getItem("currentUser") ||
-                sessionStorage.getItem("currentUser")
-            );
+    // Mengubah status task hanya secara lokal (tidak langsung ke AI)
+    const handleToggleTask = (taskName) => {
+        if (isCompletedToday) return; // Jangan izinkan ubah jika sudah selesai
+        setTasks(prev => ({ ...prev, [taskName]: !prev[taskName] }));
+    };
 
-            if (!user?.id) return;
+    // Fungsi Submit Harian yang menyamakan dengan Rencana 90 Hari
+    const handleDailySubmit = async (e) => {
+        if (e) e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            const sleepVal = tasks.tidur ? 7.5 : 0;
+            const walkVal = tasks.langkah ? 30 : 0;
+            const nutVal = tasks.nutrisi ? 85 : 0;
 
-            let labResult = null;
-            let kuesionerResult = null;
-
-            try {
-                const res = await axios.get(`http://localhost:5000/api/lab/${user.id}`);
-                labResult = res.data;
-            } catch (err) {
-                // belum ada data lab, abaikan
-            }
-
-            try {
-                const res = await axios.get(`http://localhost:5000/api/kuesioner/${user.id}`);
-                kuesionerResult = res.data;
-            } catch (err) {
-                // belum ada data kuesioner, abaikan
-            }
-
-            if (!labResult && !kuesionerResult) {
-                setRiskData(null);
-                return;
-            }
-
-            
-            let latest;
-            let mode;
-
-            if (labResult && kuesionerResult) {
-                if (new Date(labResult.created_at) > new Date(kuesionerResult.created_at)) {
-                    latest = labResult;
-                    mode = "lab";
-                } else {
-                    latest = kuesionerResult;
-                    mode = "questionnaire";
-                }
-            } else if (labResult) {
-                latest = labResult;
-                mode = "lab";
-            } else {
-                latest = kuesionerResult;
-                mode = "questionnaire";
-            }
-
-            const riskLevel = latest.risk_level;
-
-            const statusText =
-                mode === "lab"
-                    ? riskLevel === "Normal"
-                        ? "Risiko Rendah"
-                        : riskLevel === "Prediabetes"
-                        ? "Risiko Sedang - Prediabetes"
-                        : "Risiko Tinggi - Diabetes"
-                    : riskLevel === "low"
-                    ? "Risiko Rendah"
-                    : riskLevel === "medium"
-                    ? "Risiko Sedang"
-                    : "Risiko Tinggi";
-
-            const colorClass =
-                mode === "lab"
-                    ? riskLevel === "Normal"
-                        ? "from-green-500 to-green-400"
-                        : riskLevel === "Prediabetes"
-                        ? "from-yellow-500 to-yellow-400"
-                        : "from-red-500 to-red-400"
-                    : riskLevel === "low"
-                    ? "from-green-500 to-green-400"
-                    : riskLevel === "medium"
-                    ? "from-yellow-500 to-yellow-400"
-                    : "from-red-500 to-red-400";
-
-            
-            const score =
-                mode === "lab"
-                    ? (
-                        riskLevel === "Normal"
-                            ? (parseFloat(latest.probability_prediabetes) + parseFloat(latest.probability_diabetes)) * 100
-                            : parseFloat(latest.probability_diabetes) * 100
-                      ).toFixed(1)
-                    : null;
-
-            setRiskData({
-                mode,
-                status: statusText,
-                cta: latest.cta,
-                colorClass,
-                score,
+            const res = await fetch("http://localhost:5000/api/plan/daily", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_id: currentUser.id,
+                    day: day > 0 ? day : 1,
+                    sleep_hours: tasks.tidur ? parseFloat(sleepVal) : null,
+                    walking_minutes: tasks.langkah ? parseInt(walkVal) : null,
+                    nutrition_score: tasks.nutrisi ? parseFloat(nutVal) : null
+                })
             });
-        };
+            const data = await res.json();
+            if (res.ok) {
+                setIsCompletedToday(true);
+                // Sinkronisasi AI
+                submitDailyTracking({
+                    user_id: currentUser.id,
+                    day: day > 0 ? day : 1,
+                    sleep_hours: tasks.tidur ? 7.5 : 0,
+                    walking_minutes: tasks.langkah ? 30 : 0,
+                    nutrition_score: tasks.nutrisi ? 72 : 0
+                }).catch(e => console.error("Gagal sync tracking harian ke AI:", e));
+            } else {
+                alert(data.message || "Gagal menyimpan data harian");
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
-        fetchLatestRisk();
-        window.addEventListener("focus", fetchLatestRisk);
-        return () => window.removeEventListener("focus", fetchLatestRisk);
-    }, []);
-    
     const hour = new Date().getHours();
-    let greeting ="Good Morning";
-    if (hour >=12 && hour < 18) greeting = "Good Afternoon";
-    if (hour >=18) greeting ="Good Evening";
+    let greeting = "Selamat Pagi";
+    if (hour >= 12 && hour < 15) greeting = "Selamat Siang";
+    else if (hour >= 15 && hour < 18) greeting = "Selamat Sore";
+    else if (hour >= 18) greeting = "Selamat Malam";
 
+    // Fetch Plan Data untuk Day dan Streak
     useEffect(() => {
-        const data = JSON.parse(localStorage.getItem("userProgress"));
-
-        if(!data) return;
-
-        const today = new Date();
-        const start = new Date(data.startDate);
-
-        const diffTime = today - start;
-        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-        
-        const checkedDays = data.checkedDays || [];
-        const nextStreak = checkedDays.length;
-
-        setTimeout(() => {
-            setDay(diffDays);
-            setStreak(nextStreak);
-        }, 0);
+        const fetchPlanData = async () => {
+            const user = JSON.parse(
+                localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
+            );
+            if (user && user.id) {
+                try {
+                    const res = await axios.get(`http://localhost:5000/api/plan/${user.id}`);
+                    setIsEnrolled(res.data.enrolled);
+                    if (res.data.enrolled) {
+                        setDay(res.data.day);
+                        setStreak(res.data.currentStreak);
+                        setLevel(res.data.level || 1);
+                        setXp(res.data.xp || 0);
+                        setXpToNextLevel(res.data.xpToNextLevel || 100);
+                        setPlanTargets(res.data.targets);
+                        if (res.data.todayTracking) {
+                            setIsCompletedToday(true);
+                            setTasks({
+                                tidur: !!res.data.todayTracking.sleep_hours,
+                                langkah: !!res.data.todayTracking.walking_minutes,
+                                nutrisi: !!res.data.todayTracking.nutrition_score
+                            });
+                        } else {
+                            setIsCompletedToday(false);
+                        }
+                    }
+                } catch (e) {
+                    console.error("Gagal mengambil data plan 90 hari", e);
+                }
+            }
+        };
+        fetchPlanData();
     }, []);
 
-   
-    return(
+    // Tentukan warna berdasarkan risiko
+    const getRiskStyles = () => {
+        if (!riskData) return { 
+            bg: "bg-gradient-to-br from-[#0072CE] to-[#003A68] text-white shadow-indigo-500/20", 
+            btnText: "text-indigo-600" 
+        };
+        if (riskData.risk === "Risiko Tinggi") return { 
+            bg: "bg-gradient-to-br from-red-600 to-rose-500 text-white shadow-red-500/30", 
+            btnText: "text-red-600" 
+        };
+        if (riskData.risk === "Risiko Sedang") return { 
+            bg: "bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-orange-500/30", 
+            btnText: "text-orange-600" 
+        };
+        return { 
+            bg: "bg-gradient-to-br from-emerald-600 to-teal-500 text-white shadow-emerald-500/30", 
+            btnText: "text-emerald-700" 
+        };
+    };
+
+    const riskStyles = getRiskStyles();
+    return (
         <div className={`flex-1 transition-all duration-300 ${isOpen ? 'lg:ml-60' : 'lg:ml-24'}`}>
             <Sidebar />
 
@@ -197,36 +244,48 @@ function Dashboard(){
                     </div>
 
                     
-                    <div className={`mt-6 sm:mt-10 max-w-5xl w-full bg-gradient-to-r ${riskData ? riskData.colorClass : "from-[#0072CE] to-[#3E97FF]"} text-white p-4 sm:p-6 rounded-2xl shadow-md mb-6`}>
-                        <p className="text-xs sm:text-sm opacity-90">Status Risiko</p>
+                    <div className={`mt-6 sm:mt-10 max-w-5xl w-full ${riskStyles.bg} p-6 sm:p-8 lg:p-10 rounded-[24px] shadow-xl transition-all duration-500 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden`}>
+                        {/* Decorative Background Glow */}
+                        <div className="absolute -right-20 -top-20 w-64 h-64 bg-white/20 rounded-full blur-3xl pointer-events-none"></div>
+                        <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-black/5 rounded-full blur-2xl pointer-events-none"></div>
 
-                        <h3 className="text-lg sm:text-xl font-bold mt-1">
-                            {riskData
-                                ? riskData.mode === "lab"
-                                    ? `${riskData.score}% - ${riskData.status}`
-                                    : riskData.status
-                                : "Belum ada data"}
-                        </h3>
+                        {/* Kiri: Teks & Info */}
+                        <div className="w-full md:w-auto flex-1 relative z-10 text-center md:text-left">
+                            <p className="text-xs sm:text-sm opacity-90 font-bold tracking-widest uppercase mb-2">Status Kesehatan Anda</p>
+                            
+                            <h3 className="text-3xl sm:text-4xl lg:text-5xl font-black mt-2 tracking-tight drop-shadow-sm">
+                                {riskData ? riskData.status : "Belum dievaluasi"}
+                            </h3>
 
-                        <p className="text-xs sm:text-sm mt-2 opacity-90 leading-relaxed">
-                            {riskData
-                                ? riskData.cta
-                                : "Yuk mulai penilaian untuk melihat kondisi kesehatan Anda saat ini."}
-                        </p>
+                            <p className="text-sm sm:text-base mt-4 opacity-90 leading-relaxed max-w-lg font-medium mx-auto md:mx-0">
+                                Pantau dan lakukan penilaian secara berkala untuk mengetahui potensi risiko prediabetes dan menjaga kesehatan Anda.
+                            </p>
+                        </div>
 
-                        <button 
-                            onClick={() => navigate("/analisis")}
-                            className="mt-4 w-full bg-white text-[#0072CE] font-semibold py-2.5 sm:py-3 text-sm sm:text-base rounded-xl hover:bg-gray-100 transition-all duration-200"
-                        >
-                            {riskData ? "Cek Kembali Risiko Anda":"Cek Risiko Anda Sekarang"}
-                        </button>
+                        {/* Kanan: Skor Raksasa & Tombol */}
+                        <div className="w-full md:w-auto flex flex-col items-center md:items-end gap-6 relative z-10 border-t md:border-t-0 md:border-l border-white/20 pt-6 md:pt-0 md:pl-10">
+                            {riskData ? (
+                                <div className="text-center md:text-right">
+                                    <p className="text-xs sm:text-sm font-bold uppercase tracking-widest opacity-80 mb-1">Skor Risiko</p>
+                                    <h1 className="text-6xl sm:text-7xl lg:text-8xl font-black leading-none drop-shadow-lg tracking-tighter">
+                                        {riskData.score}<span className="text-3xl sm:text-4xl opacity-70 ml-1">%</span>
+                                    </h1>
+                                </div>
+                            ) : null}
+
+                            <button 
+                                onClick={() => navigate(riskData ? "/hasil" : "/analisis")}
+                                className={`w-full md:w-auto bg-white ${riskStyles.btnText} font-extrabold py-3.5 px-8 text-sm sm:text-base rounded-2xl hover:scale-105 hover:shadow-xl transition-all duration-300 shadow-lg flex items-center justify-center gap-2`}
+                            >
+                                {riskData ? "Lihat Detail Analisis" : "Cek Risiko Sekarang"}
+                                <span className="material-symbols-outlined text-[20px]">{riskData ? "query_stats" : "arrow_forward"}</span>
+                            </button>
+                        </div>
                     </div>
 
-                    {currentUser?.id && localStorage.getItem(`started90days_${currentUser.id}`) === "true" ? (
-                        <InputHarian />
-                    ) : null}
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mt-6 sm:mt-8 max-w-5xl w-full">
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8 max-w-5xl w-full">
+                        {/* Streak Card */}
                         <div className="bg-white rounded-2xl shadow-sm sm:shadow-md p-4 sm:p-5 hover:shadow-md transition-shadow">
                             <div className="flex items-center gap-2 mb-2 sm:mb-3">
                                 <span className="text-xl">🔥</span>
@@ -245,6 +304,29 @@ function Dashboard(){
                             </div>
                         </div>
 
+                        {/* Level Card */}
+                        <div className="bg-white rounded-2xl shadow-sm sm:shadow-md p-4 sm:p-5 hover:shadow-md transition-shadow">
+                            <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                                <span className="text-xl">⚡</span>
+                                <h3 className="text-gray-700 font-medium text-sm sm:text-base">Level</h3>
+                            </div>
+
+                            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900">{level}</h1>
+
+                            <div className="flex justify-between items-center mt-1">
+                                <p className="text-xs sm:text-sm text-gray-500">XP: {xp}</p>
+                            </div>
+
+                            <div className="w-full bg-gray-200 rounded-full h-1.5 sm:h-2 mt-2 sm:mt-3">
+                                <div
+                                    className="bg-gradient-to-r from-orange-400 to-amber-500 h-1.5 sm:h-2 rounded-full transition-all duration-500"
+                                    style={{ width: `${Math.min((xp / (xp + xpToNextLevel)) * 100, 100)}%` }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Intervensi Card */}
+
                         <div className="bg-white rounded-2xl shadow-sm sm:shadow-md p-4 sm:p-5 hover:shadow-md transition-shadow">
                             <div className="flex items-center gap-2 mb-2 sm:mb-3">
                                 <span className="text-xl">📈</span>
@@ -262,7 +344,118 @@ function Dashboard(){
                                 />
                             </div>
                         </div>
-                    </div>             
+                    </div>
+
+                    {/* Tracking Harian */}
+                    {isEnrolled && (
+                        <div className="mt-8 max-w-5xl w-full">
+                            <div className="flex justify-between items-center mb-4 pl-2">
+                                <h2 className="font-semibold text-gray-800 text-lg">Target hari ini</h2>
+                                <span className="text-sm font-bold text-[#0072CE]">Hari {day}</span>
+                            </div>
+
+                            <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                                <div className="flex justify-end items-center mb-6">
+                                    {isCompletedToday && (
+                                        <span className="bg-green-100 text-green-700 text-xs px-3 py-1.5 rounded-full flex items-center gap-1 font-bold">
+                                            ✓ Tersimpan
+                                        </span>
+                                    )}
+                                </div>
+                                
+                                <form onSubmit={handleDailySubmit} className="space-y-4">
+                                    {/* Item Tidur */}
+                                    <div 
+                                        onClick={() => handleToggleTask('tidur')}
+                                        className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+                                        tasks.tidur ? 'bg-green-50 border-green-200' : 'border-gray-100 hover:border-gray-300'
+                                    }`}>
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative flex items-center">
+                                                <input type="checkbox" checked={tasks.tidur} readOnly className="sr-only peer" disabled={isCompletedToday} />
+                                                <div className="w-6 h-6 bg-white border-2 rounded-lg peer-checked:border-green-500 peer-checked:bg-green-500 flex items-center justify-center transition-colors">
+                                                    {tasks.tidur && <span className="material-symbols-outlined text-white text-[16px]">check</span>}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className={`text-2xl ${tasks.tidur ? 'opacity-50 grayscale' : ''}`}>😴</span>
+                                                <span className={`text-sm sm:text-base font-medium ${tasks.tidur ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
+                                                    Tidur Sesuai Target ({planTargets?.sleep || 7.5} Jam)
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span className={`text-xs font-bold px-3 py-1 rounded-full bg-purple-100 text-purple-600 ${tasks.tidur ? 'opacity-50' : ''}`}>+10 XP</span>
+                                    </div>
+
+                                    {/* Item Langkah */}
+                                    <div 
+                                        onClick={() => handleToggleTask('langkah')}
+                                        className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+                                        tasks.langkah ? 'bg-green-50 border-green-200' : 'border-gray-100 hover:border-gray-300'
+                                    }`}>
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative flex items-center">
+                                                <input type="checkbox" checked={tasks.langkah} readOnly className="sr-only peer" disabled={isCompletedToday} />
+                                                <div className="w-6 h-6 bg-white border-2 rounded-lg peer-checked:border-green-500 peer-checked:bg-green-500 flex items-center justify-center transition-colors">
+                                                    {tasks.langkah && <span className="material-symbols-outlined text-white text-[16px]">check</span>}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className={`text-2xl ${tasks.langkah ? 'opacity-50 grayscale' : ''}`}>🚶</span>
+                                                <span className={`text-sm sm:text-base font-medium ${tasks.langkah ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
+                                                    Aktivitas Harian ({planTargets?.walking || 30} Menit)
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span className={`text-xs font-bold px-3 py-1 rounded-full bg-purple-100 text-purple-600 ${tasks.langkah ? 'opacity-50' : ''}`}>+20 XP</span>
+                                    </div>
+
+                                    {/* Item Nutrisi */}
+                                    <div 
+                                        onClick={() => handleToggleTask('nutrisi')}
+                                        className={`flex items-center justify-between p-4 rounded-xl border transition-all duration-200 cursor-pointer ${
+                                        tasks.nutrisi ? 'bg-green-50 border-green-200' : 'border-gray-100 hover:border-gray-300'
+                                    }`}>
+                                        <div className="flex items-center gap-4">
+                                            <div className="relative flex items-center">
+                                                <input type="checkbox" checked={tasks.nutrisi} readOnly className="sr-only peer" disabled={isCompletedToday} />
+                                                <div className="w-6 h-6 bg-white border-2 rounded-lg peer-checked:border-green-500 peer-checked:bg-green-500 flex items-center justify-center transition-colors">
+                                                    {tasks.nutrisi && <span className="material-symbols-outlined text-white text-[16px]">check</span>}
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <span className={`text-2xl ${tasks.nutrisi ? 'opacity-50 grayscale' : ''}`}>🥗</span>
+                                                <span className={`text-sm sm:text-base font-medium ${tasks.nutrisi ? 'text-gray-400 line-through' : 'text-gray-700'}`}>
+                                                    Makan Sehat (Sesuai Target)
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <span className={`text-xs font-bold px-3 py-1 rounded-full bg-purple-100 text-purple-600 ${tasks.nutrisi ? 'opacity-50' : ''}`}>+20 XP</span>
+                                    </div>
+
+                                    <button 
+                                        type="submit" 
+                                        className="w-full mt-6 bg-gradient-to-r from-[#0072CE] to-[#3E97FF] hover:from-[#005ea6] hover:to-[#0072CE] text-white font-bold py-3.5 rounded-xl transition-all disabled:opacity-50 flex justify-center items-center gap-2"
+                                        disabled={isCompletedToday || isSubmitting}
+                                    >
+                                        {isSubmitting ? (
+                                            <>
+                                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                                Menyimpan...
+                                            </>
+                                        ) : isCompletedToday ? (
+                                            <>
+                                                <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                                                Selesai untuk Hari Ini
+                                            </>
+                                        ) : (
+                                            "Simpan Progress Harian"
+                                        )}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

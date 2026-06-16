@@ -1,11 +1,11 @@
 import { useNavigate } from "react-router-dom";
-export default function FaseIntervensi() {
+export default function FaseIntervensi({ currentDay = 1 }) {
     const navigate = useNavigate();
     const phases = [
         {
             title: "Stabilisasi Dasar",
             range: "Hari 1-30",
-            active: true,
+            active: currentDay <= 30,
             path: "/stabilisasi",
             status: [
                 { icon: "🍬", value: "<= 40g", color: "text-orange-500" },
@@ -16,7 +16,7 @@ export default function FaseIntervensi() {
         {
             title: "Optimasi Metabolik",
             range: "Hari 31-60",
-            active: false,
+            active: currentDay > 30 && currentDay <= 60,
             path: "/optimasi",
             status: [
                 { icon: "🍬", value: "<= 30g", color: "text-orange-500" },
@@ -27,7 +27,7 @@ export default function FaseIntervensi() {
         {
             title: "Konsolidasi",
             range: "Hari 61-90",
-            active: false,
+            active: currentDay > 60,
             path: "/konsolidasi",
             status: [
                 { icon: "🍬", value: "<= 25g", color: "text-orange-500" },

@@ -6,6 +6,7 @@ import { useSidebar } from "../hooks/useSidebar";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function EditProfile() {
     const navigate =useNavigate();
@@ -125,10 +126,23 @@ export default function EditProfile() {
             localStorage.setItem("currentUser", JSON.stringify(updateUser));
             sessionStorage.setItem("currentUser", JSON.stringify(updateUser));
 
-            alert("Profile berhasil diperbaharui");
-            navigate("/pengaturan");           
+            Swal.fire({
+                icon:"success",
+                title:"Berhasil!",
+                text: "Profile berhasil diperbaharui.",
+                confirmButtonText:"OK",
+                confirmButtonColor: "#2563eb",
+            }).then(() => {
+                navigate("/pengaturan"); 
+            });                   
         } catch (error) {
-            alert(error.response?.data?.message || "Update gagal");
+            Swal.fire({
+                icon:"error",
+                title:"Oops...",
+                text: error.response?.data?.message || "Update profile gagal.",
+                confirmButtonText:"Coba Lagi",
+                confirmButtonColor: "#ef4444",
+            });                   
         }
     };
 

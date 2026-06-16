@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaHome, FaList, FaCalendar, FaRobot, FaCog, FaBars, FaSignOutAlt, FaChartPie } from "react-icons/fa";
 import defaultProfile from "../assets/Profile.jpg"
 import { useSidebar } from "../hooks/useSidebar";
@@ -7,16 +7,21 @@ import axios from "axios";
 
 function Sidebar() {
     const location = useLocation();
+    const navigate = useNavigate();
     const { isOpen, setIsOpen } = useSidebar();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     useEffect(() => {
         const getUser = async () => {
-            const user = JSON.parse(
-                localStorage.getItem("currentUser") ||
-                sessionStorage.getItem("currentUser")
-            );
+            let user = null;
+            try {
+                const rawUser = localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser");
+                if (rawUser && rawUser !== "undefined") {
+                    user = JSON.parse(rawUser);
+                }
+            } catch (e) { console.error("Error parsing user in Sidebar", e); }
 
             const token = localStorage.getItem("token") || 
             sessionStorage.getItem("token");
@@ -196,20 +201,10 @@ function Sidebar() {
                     ))}
                 </ul>
 
-                <Link
-                    to="/login"
-                    className="relative flex items-center h-12 px-4 rounded-lg font-bold hover:bg-white/20 text-sm text-white no-underline"
-                    onClick={() => {
-                        localStorage.removeItem("currentUser");
-                        sessionStorage.removeItem("currentUser");
-
-                        localStorage.removeItem("token");
-                        sessionStorage.removeItem("token");
-
-                        if (window.innerWidth < 1024) {
-                        setIsMobileMenuOpen(false);
-                        }
-                    }}>
+                <button
+                    onClick={() => setShowLogoutModal(true)}
+                    className="relative flex items-center h-12 px-4 rounded-lg font-bold hover:bg-white/20 text-sm text-white no-underline w-full text-left"
+                >
                     <span className="w-6 flex justify-center text-lg flex-shrink-0">
                         <FaSignOutAlt />
                     </span>
@@ -221,7 +216,7 @@ function Sidebar() {
                         `}>
                         Keluar
                     </span>
-                </Link>
+                </button>
 
                 <div className="h-px bg-white/40 my-3"></div>
 
@@ -247,6 +242,46 @@ function Sidebar() {
                     </span>
                 </Link>
             </div>
+
+            {/* Modal Konfirmasi Logout */}
+            {showLogoutModal && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+                    <div className="bg-surface w-full max-w-sm rounded-3xl shadow-2xl p-6 md:p-8 text-center animate-in fade-in zoom-in duration-300">
+                        <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span className="material-symbols-outlined text-[32px]">logout</span>
+                        </div>
+                        <h3 className="text-headline-sm font-headline-sm text-on-surface mb-2 font-bold">Keluar Akun?</h3>
+                        <p className="text-body-md font-body-md text-on-surface-variant mb-8">
+                            Anda harus masuk kembali untuk mengakses data kesehatan Anda.
+                        </p>
+                        
+                        <div className="flex flex-col sm:flex-row gap-3 justify-center w-full">
+                            <button 
+                                onClick={() => setShowLogoutModal(false)}
+                                className="flex-1 px-4 py-3 rounded-xl border-2 border-outline-variant text-on-surface hover:bg-surface-container transition-colors font-bold"
+                            >
+                                Batal
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    localStorage.removeItem("currentUser");
+                                    sessionStorage.removeItem("currentUser");
+                                    localStorage.removeItem("token");
+                                    sessionStorage.removeItem("token");
+                                    
+                                    setShowLogoutModal(false);
+                                    if (window.innerWidth < 1024) setIsMobileMenuOpen(false);
+                                    
+                                    navigate("/login");
+                                }}
+                                className="flex-1 px-4 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white transition-colors shadow-md font-bold"
+                            >
+                                Ya, Keluar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

@@ -1,8 +1,8 @@
 import axios from "axios";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiAlertCircle, FiX } from "react-icons/fi";
 
 export default function AuthPage() {
     const navigate = useNavigate();
@@ -11,6 +11,7 @@ export default function AuthPage() {
     const [showModal, setShowModal] = useState(false);
     const [showPasswordLogin, setShowPasswordLogin] = useState(false);
     const [showPasswordSignup, setShowPasswordSignup] = useState(false);
+    const [toast, setToast] = useState(null);
 
     const [loginData, setLoginData] = useState({
         email: "",
@@ -24,6 +25,16 @@ export default function AuthPage() {
         password: "",
         agree: false,
     });
+
+    const showError = (message) => {
+        setToast({ message, id: Date.now() });
+    };
+
+    useEffect(() => {
+        if (!toast) return;
+        const timer = setTimeout(() => setToast(null), 4500);
+        return () => clearTimeout(timer);
+    }, [toast]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -46,16 +57,16 @@ export default function AuthPage() {
 
             navigate(response.data.redirectTo || "/beranda");
         } catch (error) {
-            alert(error.response?.data?.message || "Login gagal");
+            showError(error.response?.data?.message || "Login gagal");
         }
     };
 
     const handleSignup = async (e) => {
         e.preventDefault();
 
-        if (!signupData.email || !signupData.password) { alert("Semua field harus diisi"); return; }
-        if (!signupData.agree) { alert("Setujui syarat & ketentuan"); return; }
-        if (signupData.password.length < 8) { alert("Password minimal 8 karakter"); return; }
+        if (!signupData.email || !signupData.password) { showError("Semua field harus diisi"); return; }
+        if (!signupData.agree) { showError("Setujui syarat & ketentuan"); return; }
+        if (signupData.password.length < 8) { showError("Password minimal 8 karakter"); return; }
 
         try {
             const response = await axios.post("http://localhost:5000/api/auth/register", {
@@ -68,13 +79,53 @@ export default function AuthPage() {
             sessionStorage.setItem("token", response.data.token);
             navigate("/input");
         } catch (error) {
-            alert(error.response?.data?.message || "Register gagal");
+            showError(error.response?.data?.message || "Register gagal");
         }
     };
 
     return (
         <div className="min-h-screen bg-white font-[Poppins]">
             <Navbar />
+
+            
+            {toast && (
+                <div className="fixed top-20 inset-x-0 z-[10000] flex justify-center px-4 pointer-events-none">
+                    <div
+                        key={toast.id}
+                        role="alert"
+                        aria-live="assertive"
+                        className="toast-enter pointer-events-auto relative w-full max-w-sm overflow-hidden rounded-2xl border border-red-100 bg-white shadow-2xl"
+                    >
+                        <div className="flex items-start gap-3 px-4 py-3">
+                            <span className="mt-0.5 flex-shrink-0 text-red-500">
+                                <FiAlertCircle size={20} />
+                            </span>
+                            <p className="flex-1 text-sm leading-snug text-gray-800">{toast.message}</p>
+                            <button
+                                type="button"
+                                onClick={() => setToast(null)}
+                                aria-label="Tutup notifikasi"
+                                className="flex-shrink-0 text-gray-400 transition hover:text-gray-600">
+                                <FiX size={18} />
+                            </button>
+                        </div>
+                        <div className="toast-progress h-1 bg-red-500" />
+                    </div>
+                </div>
+            )}
+
+            <style>{`
+                @keyframes toastSlideIn {
+                    from { transform: translateY(-12px); opacity: 0; }
+                    to { transform: translateY(0); opacity: 1; }
+                }
+                @keyframes toastShrink {
+                    from { width: 100%; }
+                    to { width: 0%; }
+                }
+                .toast-enter { animation: toastSlideIn 0.25s ease-out; }
+                .toast-progress { animation: toastShrink 4.5s linear forwards; }
+            `}</style>
 
             
             <div className="hidden md:flex fixed inset-0 items-center justify-center pt-24">
@@ -110,7 +161,7 @@ export default function AuthPage() {
                                         onChange={(e) => setLoginData({ ...loginData, remember: e.target.checked })} />
                                     Ingatkan saya
                                 </label>
-                                <a href="#" className="hover:text-[#0072ce]">Lupa Kata Sandi?</a>
+                                <a href="/forgot-password" className="hover:text-[#0072ce]">Lupa Kata Sandi?</a>
                             </div>
 
                             <button type="submit"

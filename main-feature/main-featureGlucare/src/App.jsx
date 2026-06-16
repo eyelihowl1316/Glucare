@@ -25,6 +25,7 @@ import OptimasiMetabolik from './pages/OptimasiMetabolik';
 import Konsolidasi from './pages/Konsolidasi';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicRoute from './components/PublicRoute';
+import ForgotPassword from './pages/ForgetPassword';
 
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
           <Route path='/cara-kerja' element={<CaraKerja />}/>
           <Route path='/hubungi'element={<HubungiKami />}/>
           <Route path='/login' element={<Auth />}/>
+          <Route path='/forgot-password' element={<ForgotPassword />}/>
         </Route>
 
         <Route element={<ProtectedRoute />}>

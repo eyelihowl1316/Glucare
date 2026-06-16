@@ -2,6 +2,8 @@ const db = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
+const { sendOtpEmail } = require("../config/mailer");
+const { generateOtp } = require('../utils/otpHelper');
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -423,4 +425,144 @@ const facebookLogin = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, inputData, getProfile, uploadPhoto, updateProfile, changePassword, googleLogin, facebookLogin };
+const forgetPassword = (req, res) => {
+    const { email } = req.body;
+    console.log('1 forgetPassword hit, email:' , email);
+
+    if (!email) {
+        return res.status(400).json({ message: 'Email wajib diisi' });
+    }
+
+    db.query('SELECT id FROM users WHERE email = ?', [email], (err, users) => {
+        console.log('2 query users result:', err, users);
+        if (err) return res.status(500).json({ message: 'Server error' });
+
+        if (users.length === 0) {
+        return res.status(404).json({ message: 'Email tidak terdaftar' });
+        }
+
+        const userId = users[0].id;
+
+        db.query('DELETE FROM forget_password WHERE user_id = ?', [userId], (err) => {
+            console.log('3 delete old OTP:', err);
+        if (err) return res.status(500).json({ message: 'Server error' });
+
+        const otp = generateOtp();
+        console.log('4 OTP generated:', otp);
+        const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+        db.query(
+            'INSERT INTO forget_password (user_id, otp, expires_at) VALUES (?, ?, ?)',
+            [userId, otp, expiresAt],
+            async (err) => {
+                console.log('5 insert OTP result:', err);
+            if (err) return res.status(500).json({ message: 'Server error' });
+
+            try {
+                await sendOtpEmail(email, otp);
+                console.log('6 email sent');
+                return res.status(200).json({ message: 'OTP berhasil dikirim ke email kamu' });
+            } catch (mailErr) {
+                console.error('X gagal kirim email:', mailErr);
+                console.error('Gagal kirim email:', mailErr);
+                return res.status(500).json({ message: 'Gagal mengirim email OTP' });
+            }
+            }
+        );
+        });
+    });
+};
+
+const verifyOtp = (req, res) => {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+        return res.status(400).json({ message: 'Email dan OTP wajib diisi' });
+    }
+
+    db.query('SELECT id FROM users WHERE email = ?', [email], (err, users) => {
+        if (err) return res.status(500).json({ message: 'Server error' });
+
+        if (users.length === 0) {
+        return res.status(404).json({ message: 'Email tidak ditemukan' });
+        }
+
+        const userId = users[0].id;
+
+        db.query(
+        `SELECT * FROM forget_password 
+        WHERE user_id = ? AND otp = ? AND is_used = FALSE AND expires_at > NOW()`,
+        [userId, otp],
+        (err, otpRows) => {
+            if (err) return res.status(500).json({ message: 'Server error' });
+
+            if (otpRows.length === 0) {
+            return res.status(400).json({ message: 'OTP tidak valid atau sudah kadaluwarsa' });
+            }
+
+            db.query(
+            'UPDATE forget_password SET is_used = TRUE WHERE id = ?',
+            [otpRows[0].id],
+            (err) => {
+                if (err) return res.status(500).json({ message: 'Server error' });
+
+                const resetToken = jwt.sign(
+                { userId },
+                process.env.JWT_RESET_SECRET,
+                { expiresIn: '10m' }
+                );
+
+                return res.status(200).json({ message: 'OTP valid', resetToken });
+            }
+            );
+        }
+        );
+    });
+};
+
+
+const resetPassword = async (req, res) => {
+    const { resetToken, newPassword, confirmPassword } = req.body;
+
+    if (!resetToken || !newPassword || !confirmPassword) {
+        return res.status(400).json({ message: 'Semua field wajib diisi' });
+    }
+    if (newPassword !== confirmPassword) {
+        return res.status(400).json({ message: 'Konfirmasi password tidak cocok' });
+    }
+    if (newPassword.length < 8) {
+        return res.status(400).json({ message: 'Password minimal 8 karakter' });
+    }
+
+    let decoded;
+    try {
+        decoded = jwt.verify(resetToken, process.env.JWT_RESET_SECRET);
+    } catch (err) {
+        return res.status(401).json({ message: 'Token tidak valid atau sudah kedaluwarsa' });
+    }
+
+    const userId = decoded.userId;
+
+    try {
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        db.query('UPDATE users SET password = ? WHERE id = ?', [hashedPassword, userId], (err) => {
+        if (err) return res.status(500).json({ message: 'Gagal update password' });
+
+        db.query('DELETE FROM forget_password WHERE user_id = ?', [userId], (err) => {
+            if (err) return res.status(500).json({ message: 'Server error' });
+
+            return res.status(200).json({ message: 'Password berhasil direset, silakan login' });
+        });
+        });
+    } catch (error) {
+        console.error('resetPassword error:', error);
+        return res.status(500).json({ message: 'Terjadi kesalahan server' });
+    }
+};
+
+module.exports = { 
+    registerUser, loginUser, inputData, 
+    getProfile, uploadPhoto, updateProfile, 
+    changePassword, googleLogin, facebookLogin, 
+    forgetPassword, verifyOtp, resetPassword};
