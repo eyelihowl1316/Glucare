@@ -8,14 +8,14 @@ const { generateOtp } = require('../utils/otpHelper');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const registerUser = async (req, res) => {
-    const { fullname, email, password } = req.body;
+    const { fullname, email, password, gender, birth_date } = req.body;
 
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        const sql = "INSERT INTO users (fullname, email, password) VALUES (?, ?, ?)";
+        const sql = "INSERT INTO users (fullname, email, password, gender, birth_date) VALUES (?, ?, ?, ?, ?)";
 
-        db.query(sql, [fullname, email, hashedPassword], (err, result) => {
+        db.query(sql, [fullname, email, hashedPassword, gender || null, birth_date || null], (err, result) => {
             if (err) {
                 console.log(err);
                 if (err.code === 'ER_DUP_ENTRY') {
@@ -37,7 +37,9 @@ const registerUser = async (req, res) => {
                     id: result.insertId,
                     fullname,
                     email,
-                    is_completed: 0
+                    is_completed: 0,
+                    gender: gender || null,
+                    birth_date: birth_date || null
                 },
             });
         });
@@ -86,7 +88,9 @@ const loginUser = (req, res) => {
                     id: user.id,
                     fullname: user.fullname,
                     email: user.email,
-                    is_completed: user.is_completed
+                    is_completed: user.is_completed,
+                    gender: user.gender,
+                    birth_date: user.birth_date
                 }
             });
         }
@@ -104,7 +108,9 @@ const loginUser = (req, res) => {
                 id: user.id,
                 fullname: user.fullname,
                 email: user.email,
-                is_completed: user.is_completed
+                is_completed: user.is_completed,
+                gender: user.gender,
+                birth_date: user.birth_date
             },
         });
     });
@@ -303,7 +309,9 @@ const googleLogin = async (req, res) => {
                         fullname: user.fullname,
                         email: user.email,
                         is_completed: user.is_completed,
-                        profile_image: user.profile_image
+                        profile_image: user.profile_image,
+                        gender: user.gender,
+                        birth_date: user.birth_date
                     }
                 });
             } else {
@@ -331,7 +339,9 @@ const googleLogin = async (req, res) => {
                             fullname: name,
                             email,
                             is_completed: 0,
-                            profile_image: picture
+                            profile_image: picture,
+                            gender: null,
+                            birth_date: null
                         }
                     });
                 });
@@ -385,7 +395,9 @@ const facebookLogin = async (req, res) => {
                         fullname: user.fullname,
                         email: user.email,
                         is_completed: user.is_completed,
-                        profile_image: user.profile_image
+                        profile_image: user.profile_image,
+                        gender: user.gender,
+                        birth_date: user.birth_date
                     }
                 });
             } else {
@@ -413,7 +425,9 @@ const facebookLogin = async (req, res) => {
                             fullname: name,
                             email,
                             is_completed: 0,
-                            profile_image: profileImage
+                            profile_image: profileImage,
+                            gender: null,
+                            birth_date: null
                         }
                     });
                 });
