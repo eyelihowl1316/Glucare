@@ -8,6 +8,11 @@ import { useState, useEffect } from "react";
 const HasilAnalisis = () => {
     const navigate = useNavigate();
     const { isOpen } = useSidebar();
+    const location = useLocation();
+
+    const result = location.state?.result;
+    const input = location.state?.input;
+    const mode = location.state?.mode || "lab";
 
     const [data, setData] = useState({
         score: 0,
@@ -222,6 +227,8 @@ const HasilAnalisis = () => {
                                     <h3 className="font-semibold mb-2">
                                         Interpetasi Lab
                                     </h3>
+                                </div>
+                            )}
 
                             {/* Kesimpulan AI */}
                             <div className="p-6 bg-gray-50">
