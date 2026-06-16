@@ -1,7 +1,7 @@
 import Sidebar from "../components/Sidebar";
 import HeaderAnalisis from "../components/HeaderAnalisis";
 import Button from "../components/Button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "../hooks/useSidebar";
 import { useState, useEffect } from "react";
 
@@ -230,6 +230,8 @@ const HasilAnalisis = () => {
                                     <h3 className="font-semibold mb-2">
                                         Interpetasi Lab
                                     </h3>
+                                </div>
+                            )}
 
                             {/* Kesimpulan AI */}
                             <div className="p-6 bg-gray-50">
