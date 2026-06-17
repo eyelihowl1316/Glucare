@@ -4,7 +4,7 @@ import { useSidebar } from "../hooks/useSidebar";
 import { useNavigate } from "react-router-dom";
 import HeaderAnalisis from "../components/HeaderAnalisis";
 
-const API = `/api`;
+const API = `${import.meta.env.VITE_API_URL}/api`;
 
 // ── Helper ─────────────────────────────────────────────────────
 const avg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
@@ -249,7 +249,7 @@ export default function Evaluasi() {
                                                 : "-"}
                                         </p>
                                         <p className="text-xs text-gray-500 mt-1">
-                                            {avgGlucose > 0 ? `Rata-rata gula: ${avgGlucose.toFixed(1)} mg/dL` : "Belum ada data gula darah"}
+                                            {avgGlucose > 0 ? `Rata-rata gula: ${avgGlucose.toFixed(1)} mg/dL` : "Belum ada data. Silakan catat di menu Rencana 90 Hari."}
                                         </p>
                                     </div>
                                 </div>
