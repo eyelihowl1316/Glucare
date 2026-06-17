@@ -187,6 +187,20 @@ function Dashboard() {
                     walking_minutes: tasks.langkah ? 30 : 0,
                     nutrition_score: tasks.nutrisi ? 72 : 0
                 }).catch(e => console.error("Gagal sync tracking harian ke AI:", e));
+
+                // Refresh data XP, Level, dan Streak secara instan tanpa reload halaman
+                try {
+                    const planRes = await api.get(`/api/plan/${currentUser.id}`);
+                    if (planRes.data.enrolled) {
+                        setStreak(planRes.data.currentStreak);
+                        setLevel(planRes.data.level || 1);
+                        setXp(planRes.data.xp || 0);
+                        setXpToNextLevel(planRes.data.xpToNextLevel || 100);
+                    }
+                } catch (err) {
+                    console.error("Gagal refresh plan data otomatis", err);
+                }
+
             } else {
                 alert(data.message || "Gagal menyimpan data harian");
             }
@@ -229,6 +243,11 @@ function Dashboard() {
                             });
                         } else {
                             setIsCompletedToday(false);
+                            setTasks({
+                                tidur: false,
+                                langkah: false,
+                                nutrisi: false
+                            });
                         }
                     }
                 } catch (e) {
@@ -237,6 +256,10 @@ function Dashboard() {
             }
         };
         fetchPlanData();
+
+        // Tambahkan listener agar saat user buka HP/Aplikasi lagi dari background, data plan langsung ter-refresh
+        window.addEventListener("focus", fetchPlanData);
+        return () => window.removeEventListener("focus", fetchPlanData);
     }, []);
 
     // Tentukan warna berdasarkan risiko

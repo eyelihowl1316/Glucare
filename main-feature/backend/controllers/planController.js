@@ -29,7 +29,9 @@ const enrollPlan = async (req, res) => {
             return res.status(400).json({ message: "Data enroll tidak lengkap" });
         }
 
-        const today = new Date().toISOString().split("T")[0];
+        const now = new Date();
+        const wibTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+        const today = wibTime.toISOString().split("T")[0]; // YYYY-MM-DD dalam WIB
 
         await db.promise().query(
             `UPDATE users SET 
@@ -82,9 +84,19 @@ const getPlanData = async (req, res) => {
             return res.status(200).json({ enrolled: false });
         }
 
-        const todayDate = new Date();
-        const start = new Date(user.plan_start_date);
-        const diffTime = Math.abs(todayDate - start);
+        const now = new Date();
+        // Waktu sekarang di WIB (GMT+7)
+        const wibTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
+        
+        // start date dari DB biasanya string YYYY-MM-DD
+        // saat di-parse new Date() akan otomatis jadi UTC 00:00:00
+        const startWIB = new Date(user.plan_start_date);
+        
+        // Buat jam jadi 00:00:00 agar hitungan hari akurat (berdasarkan kalender)
+        wibTime.setUTCHours(0, 0, 0, 0);
+        startWIB.setUTCHours(0, 0, 0, 0);
+
+        const diffTime = wibTime.getTime() - startWIB.getTime();
         const currentDay = Math.min(Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1, 90);
 
         // Get Today's tracking
