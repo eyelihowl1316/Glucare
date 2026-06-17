@@ -502,19 +502,32 @@ const verifyOtp = (req, res) => {
         const userId = users[0].id;
 
         db.query(
-        `SELECT * FROM forget_password 
-        WHERE user_id = ? AND otp = ? AND is_used = FALSE AND expires_at > NOW()`,
-        [userId, otp],
-        (err, otpRows) => {
+        `SELECT * FROM forget_password WHERE user_id = ? ORDER BY id DESC LIMIT 1`,
+        [userId],
+        (err, recentRows) => {
             if (err) return res.status(500).json({ message: 'Server error' });
 
-            if (otpRows.length === 0) {
-            return res.status(400).json({ message: 'OTP tidak valid atau sudah kadaluwarsa' });
+            if (recentRows.length === 0) {
+            return res.status(400).json({ message: 'Belum ada OTP yang diminta.' });
+            }
+
+            const latestOtp = recentRows[0];
+            const nowTime = new Date();
+            const expTime = new Date(latestOtp.expires_at);
+
+            if (String(latestOtp.otp).trim() !== String(otp).trim()) {
+                return res.status(400).json({ message: `OTP salah. (Tersimpan: ${latestOtp.otp})` });
+            }
+            if (latestOtp.is_used) {
+                return res.status(400).json({ message: 'OTP ini sudah terpakai.' });
+            }
+            if (expTime < nowTime) {
+                return res.status(400).json({ message: `OTP sudah kadaluwarsa. Server time issue.` });
             }
 
             db.query(
             'UPDATE forget_password SET is_used = TRUE WHERE id = ?',
-            [otpRows[0].id],
+            [latestOtp.id],
             (err) => {
                 if (err) return res.status(500).json({ message: 'Server error' });
 
