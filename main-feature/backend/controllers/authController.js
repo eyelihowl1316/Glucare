@@ -463,11 +463,9 @@ const forgetPassword = (req, res) => {
 
         const otp = generateOtp();
         console.log('4 OTP generated:', otp);
-        const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
         db.query(
-            'INSERT INTO forget_password (user_id, otp, expires_at) VALUES (?, ?, ?)',
-            [userId, otp, expiresAt],
+            'INSERT INTO forget_password (user_id, otp, expires_at) VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))',
+            [userId, otp],
             async (err) => {
                 console.log('5 insert OTP result:', err);
             if (err) return res.status(500).json({ message: 'Server error' });
