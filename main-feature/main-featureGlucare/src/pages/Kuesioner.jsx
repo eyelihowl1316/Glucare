@@ -10,14 +10,6 @@ import { FiAlertCircle, FiX } from "react-icons/fi";
 
 const questions = [
     {
-        question: "Berapa Usia Anda saat ini?",
-        options: ["20-29 tahun", "30-39 tahun", "40+ tahun"],
-    },
-    {
-        question: "Jenis kelamin Anda?",
-        options: ["Laki-laki", "Perempuan"],
-    },
-    {
         question: "Bagaimana kategori BMI Anda?",
         options: ["Normal", "Overweight", "Obesitas"],
     },
@@ -79,14 +71,22 @@ export default function Kuesioner() {
                     }
                 } catch (e) { console.error("Error parsing user in Kuesioner", e); }
 
-                // Kirim jawaban mentah ke backend — backend yang mapping ke parameter AI
-                const { predictQuestionnaire } = await import("../services/glucareAI");
-                const result = await predictQuestionnaire({
-                    user_id: currentUser?.id,
-                    answers: answers
-                });
+                const bmiText = answers[0];
+                const waistText = answers[1];
+                const hyperText = answers[2];
+                const overweightText = answers[3];
 
-                // Simpan hasil dari backend ke localStorage untuk HasilAnalisis
+                const payload = {
+                    user_id: currentUser?.id,
+                    bmi_category: bmiText === "Normal" ? 0 : bmiText === "Overweight" ? 1 : 2,
+                    waist_category: waistText === "Normal" ? 0 : 1,
+                    hypertension: hyperText === "Ya" ? 1 : 0,
+                    overweight_history: overweightText === "Ya" ? 1 : 0
+                };
+
+                const { predictQuestionnaire } = await import("../services/glucareAI");
+                const result = await predictQuestionnaire(payload);
+
                 if (currentUser?.id) {
                     localStorage.setItem(`aiAnalysisResult_${currentUser.id}`, JSON.stringify(result));
                 }

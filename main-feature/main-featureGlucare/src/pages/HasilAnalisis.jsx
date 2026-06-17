@@ -62,12 +62,13 @@ const HasilAnalisis = () => {
                         }
                         
                         const faktorList = [];
-                        if (input[1] === "Ada") faktorList.push("Ada riwayat keluarga diabetes");
-                        if (input[2] === "Tidak pernah") faktorList.push("Kurang aktivitas fisik");
-                        if (input[3] === "Setiap hari") faktorList.push("Sering konsumsi manis");
-                        if (input[4] === "Besar (Gemuk perut)" || input[4] === "Agak Besar") faktorList.push(`Lingkar pinggang: ${input[4]}`);
-                        if (input[7] === "Tinggi") faktorList.push("Tingkat stres tinggi");
-                        if (faktorList.length === 0) faktorList.push("Gaya hidup relatif sehat");
+                        if (input.bmi_category === 1) faktorList.push("BMI dalam kategori Overweight");
+                        if (input.bmi_category === 2) faktorList.push("BMI dalam kategori Obesitas");
+                        if (input.waist_category === 1) faktorList.push("Lingkar pinggang berisiko");
+                        if (input.hypertension === 1) faktorList.push("Memiliki riwayat hipertensi");
+                        if (input.overweight_history === 1) faktorList.push("Pernah memiliki riwayat kelebihan berat badan");
+                        
+                        if (faktorList.length === 0) faktorList.push("Gaya hidup relatif sehat dan tidak ada risiko signifikan dari kuesioner");
 
                         setData({
                             score, risk, status,

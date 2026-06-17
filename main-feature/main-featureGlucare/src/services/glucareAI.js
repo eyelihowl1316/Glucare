@@ -84,10 +84,10 @@ export async function predictClinical(params) {
     return response.data; // { mode, aiResult, clinicalParams, timestamp }
 }
 
-// ── POST /api/ai/predict/questionnaire — Prediksi kuesioner via backend
+// ── POST /api/kuesioner/submit — Prediksi kuesioner via backend
 export async function predictQuestionnaire(params) {
-    const response = await backendClient.post("/api/ai/predict/questionnaire", params);
-    return response.data; // { mode, aiResult, answers, timestamp }
+    const response = await backendClient.post("/api/kuesioner/submit", params);
+    return response.data; // { mode, risk_level, cta, assessment_id }
 }
 
 // ── POST /program/enroll — Daftar program 90 hari ─────────────
