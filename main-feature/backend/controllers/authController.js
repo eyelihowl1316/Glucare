@@ -533,7 +533,7 @@ const verifyOtp = (req, res) => {
 
                 const resetToken = jwt.sign(
                 { userId },
-                process.env.JWT_RESET_SECRET,
+                process.env.JWT_RESET_SECRET || process.env.JWT_SECRET || 'glucare_secret_key',
                 { expiresIn: '10m' }
                 );
 
@@ -561,7 +561,7 @@ const resetPassword = async (req, res) => {
 
     let decoded;
     try {
-        decoded = jwt.verify(resetToken, process.env.JWT_RESET_SECRET);
+        decoded = jwt.verify(resetToken, process.env.JWT_RESET_SECRET || process.env.JWT_SECRET || 'glucare_secret_key');
     } catch (err) {
         return res.status(401).json({ message: 'Token tidak valid atau sudah kedaluwarsa' });
     }
