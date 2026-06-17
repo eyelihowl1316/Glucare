@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import HeaderAnalisis from "../components/HeaderAnalisis";
 import iconBack from "../assets/iconBack.svg";
-import iconNext from "../assets/iconNext.svg";
+import iconNext from "../assets/IconNext.svg";
 import iconFinish from "../assets/iconFinish.svg";
 import { useNavigate } from "react-router-dom";
 import { useSidebar } from "../hooks/useSidebar";

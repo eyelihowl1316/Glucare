@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar";
-import CTASection from "../components/CTASection";
+import CTASection from "../components/CTAsection";
 import Footer from "../components/Footer";
 
 import enterHealthData from "../assets/how-it0works/Enter-Health-Data.png";

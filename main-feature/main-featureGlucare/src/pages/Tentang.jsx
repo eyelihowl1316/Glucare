@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar";
-import CTASection from "../components/CTASection";
+import CTASection from "../components/CTAsection";
 import Footer from "../components/Footer";
 import heroImage from "../assets/aboutimages/Hero.jpg";
 import problem1 from "../assets/aboutimages/Problem1.jpg";

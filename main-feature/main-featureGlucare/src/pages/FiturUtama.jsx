@@ -1,5 +1,5 @@
 import Navbar from "../components/Navbar";
-import CTASection from "../components/CTASection";
+import CTASection from "../components/CTAsection";
 import Footer from "../components/Footer";
 import aiRiskImage from "../assets/aboutimages/AiRisk.png";
 import rekomendasiImage from "../assets/aboutimages/Rekomendasi.png";
