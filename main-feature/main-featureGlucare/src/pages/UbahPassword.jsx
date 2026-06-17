@@ -6,7 +6,7 @@ import { useSidebar } from "../hooks/useSidebar";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import Alert from "../components/Alert";
-import axios from "axios";
+import api from "../api";
 
 export default function ChangePassword() {
     const { isOpen } = useSidebar();
@@ -59,7 +59,7 @@ export default function ChangePassword() {
                 sessionStorage.getItem("currentUser")
             );
 
-            await axios.put(`https://nusahealth.infinitelearningstudent.id/api/auth/change-password/${currentUser.id}`, {
+            await api.put(`/api/auth/change-password/${currentUser.id}`, {
                 oldPassword: form.oldPassword,
                 newPassword: form.newPassword
             });

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { FaLock } from "react-icons/fa";
-import axios from 'axios';
+import api from "../api";
 
 
 const StepEmail = ({ onSuccess }) => {
@@ -14,7 +14,7 @@ const StepEmail = ({ onSuccess }) => {
         setLoading(true);
 
         try {
-        await axios.post('/api/auth/forgot-password', { email });
+        await api.post('/api/auth/forgot-password', { email });
         onSuccess(email);
         } catch (err) {
         setError(err.response?.data?.message || 'Terjadi kesalahan, coba lagi');

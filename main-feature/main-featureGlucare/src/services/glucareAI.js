@@ -57,7 +57,7 @@
 import axios from "axios";
 
 const AI_BASE_URL = "https://itzvynn-glucare-backend.hf.space";
-const BACKEND_URL = "http://43.156.16.175";
+const BACKEND_URL = import.meta.env.VITE_API_URL;
 
 export const aiClient = axios.create({
     baseURL: AI_BASE_URL,
@@ -90,32 +90,32 @@ export async function predictQuestionnaire(params) {
     return response.data; // { mode, risk_level, cta, assessment_id }
 }
 
-// ── POST /program/enroll — Daftar program 90 hari ─────────────
+// ── POST /api/plan/enroll — Daftar program 90 hari ─────────────
 export async function enrollProgram(params) {
-    const response = await aiClient.post("/program/enroll", params);
+    const response = await backendClient.post("/api/plan/enroll", params);
     return response.data;
 }
 
-// ── POST /tracking/daily — Tracking harian ────────────────────
+// ── POST /api/plan/daily — Tracking harian ────────────────────
 export async function submitDailyTracking(params) {
-    const response = await aiClient.post("/tracking/daily", params);
+    const response = await backendClient.post("/api/plan/daily", params);
     return response.data;
 }
 
-// ── POST /tracking/glucose — Tracking gula darah ──────────────
+// ── POST /api/plan/glucose — Tracking gula darah ──────────────
 export async function submitGlucoseTracking(params) {
-    const response = await aiClient.post("/tracking/glucose", params);
+    const response = await backendClient.post("/api/plan/glucose", params);
     return response.data;
 }
 
-// ── POST /assessment/day30 — Evaluasi 30 hari ─────────────────
+// ── POST /api/plan/assessment30 — Evaluasi 30 hari ─────────────────
 export async function assessmentDay30(params) {
-    const response = await aiClient.post("/assessment/day30", params);
+    const response = await backendClient.post("/api/plan/assessment30", params);
     return response.data;
 }
 
-// ── POST /assessment/day90 — Evaluasi akhir 90 hari ───────────
+// ── POST /api/plan/assessment90 — Evaluasi akhir 90 hari ───────────
 export async function assessmentDay90(params) {
-    const response = await aiClient.post("/assessment/day90", params);
+    const response = await backendClient.post("/api/plan/assessment90", params);
     return response.data;
 }

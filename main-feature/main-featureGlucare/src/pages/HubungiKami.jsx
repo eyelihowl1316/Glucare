@@ -3,7 +3,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import contactBg from "../assets/contactus/Rectangle 235.png";
 import CTASection from "../components/CTAsection";
-import axios from "axios";
+import api from "../api";
 
 export default function HubungiKami() {
     const [formData, setFormData] = useState({
@@ -44,7 +44,7 @@ export default function HubungiKami() {
         }
 
         try {
-            const response = await axios.post("https://nusahealth.infinitelearningstudent.id/api/contact-us/send", formData);
+            const response = await api.post(`/api/contact-us/send`, formData);
 
             showPopup(
                 "Berhasil!",

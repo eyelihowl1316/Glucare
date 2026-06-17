@@ -5,7 +5,7 @@ import defaulAvatar from "../assets/Profile.jpg";
 import { useSidebar } from "../hooks/useSidebar";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 import Swal from "sweetalert2";
 
 export default function EditProfile() {
@@ -31,7 +31,7 @@ export default function EditProfile() {
             sessionStorage.getItem("currentUser")
         );
 
-        axios.get(`https://nusahealth.infinitelearningstudent.id/api/auth/profile/${currentUser.id}`,
+        api.get(`/api/auth/profile/${currentUser.id}`,
             {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token") || sessionStorage.getItem("token")}`,
@@ -50,7 +50,7 @@ export default function EditProfile() {
             });
 
             if(user.profile_image) {
-                setPreview(`https://nusahealth.infinitelearningstudent.id${user.profile_image}`);
+                setPreview(user.profile_image.startsWith("http") ? user.profile_image : `${import.meta.env.VITE_API_URL}${user.profile_image}`);
             };
         })
         .catch((error) => console.log(error));
@@ -88,7 +88,7 @@ export default function EditProfile() {
                 localStorage.getItem("token") ||
                 sessionStorage.getItem("token");
 
-            const response = await axios.put(`https://nusahealth.infinitelearningstudent.id/api/auth/update-profile/${currentUser.id}`, 
+            const response = await api.put(`/api/auth/update-profile/${currentUser.id}`, 
                 {
                     fullname: form.nama,
                     gender: form.jenisKelamin,
@@ -112,7 +112,7 @@ export default function EditProfile() {
                 const imageData = new FormData();
                 imageData.append("image", selectedFile);
 
-                const photoResponse = await axios.put(`https://nusahealth.infinitelearningstudent.id/api/auth/upload-photo/${currentUser.id}`,imageData,
+                const photoResponse = await api.put(`/api/auth/upload-photo/${currentUser.id}`,imageData,
                         {
                             headers: {
                                 Authorization: `Bearer ${token}`,

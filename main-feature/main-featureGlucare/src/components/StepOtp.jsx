@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from "../api";
 
 const StepOtp = ({ email, onSuccess, onBack }) => {
     const [otp, setOtp] = useState('');
@@ -27,7 +27,7 @@ const StepOtp = ({ email, onSuccess, onBack }) => {
         setLoading(true);
 
         try {
-        const res = await axios.post('/api/auth/verify-otp', { email, otp });
+        const res = await api.post('/api/auth/verify-otp', { email, otp });
         onSuccess(res.data.resetToken);
         } catch (err) {
         setError(err.response?.data?.message || 'OTP tidak valid');
@@ -40,7 +40,7 @@ const StepOtp = ({ email, onSuccess, onBack }) => {
         setResending(true);
         setError('');
         try {
-        await axios.post('/api/auth/forgot-password', { email });
+        await api.post('/api/auth/forgot-password', { email });
         setCountdown(300);
         setOtp('');
         } catch (err) {

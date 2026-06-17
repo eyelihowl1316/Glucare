@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Alert from "../components/Alert";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 
 export default function InputData() {
     const [alert, setAlert] = useState(null);
@@ -46,8 +46,8 @@ export default function InputData() {
                 localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser")
             );
 
-            const response = await axios.post(
-                "https://nusahealth.infinitelearningstudent.id/api/auth/inputData",
+            const response = await api.post(
+                `/api/auth/inputData`,
                 {
                     userId: currentUser.id,
                     ...formData,

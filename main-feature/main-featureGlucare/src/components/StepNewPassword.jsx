@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from "../api";
 import { FaKey } from "react-icons/fa";
 
 const StepNewPassword = ({ resetToken, onSuccess }) => {
@@ -25,7 +25,7 @@ const StepNewPassword = ({ resetToken, onSuccess }) => {
 
         setLoading(true);
         try {
-        await axios.post('/api/auth/reset-password', {
+        await api.post('/api/auth/reset-password', {
             resetToken,
             newPassword: form.newPassword,
             confirmPassword: form.confirmPassword,

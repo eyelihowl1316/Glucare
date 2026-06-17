@@ -13,7 +13,7 @@ export default function StatsCard({ fromColor, toColor }) {
                 const user = JSON.parse(localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser"));
                 if (!user || !user.id) return;
                 
-                const res = await fetch(`https://nusahealth.infinitelearningstudent.id/api/plan/${user.id}`);
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/plan/${user.id}`);
                 const data = await res.json();
                 if (res.ok && data.enrolled) {
                     setStatsData({

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 
 export default function InputHarian() {
     const [sudahInput, setSudahInput] = useState(false);
@@ -24,7 +24,7 @@ export default function InputHarian() {
                     setLoadingCheck(false);
                     return;
                 }
-                const res = await axios.get("/api/daily-logs/today", {
+                const res = await api.get("/api/daily-logs/today", {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setSudahInput(res.data.sudah_input);
@@ -63,7 +63,7 @@ export default function InputHarian() {
                 setSubmitting(false);
                 return;
             }
-            const res = await axios.post("/api/daily-logs", {
+            const res = await api.post("/api/daily-logs", {
                 glucose_mean: parseFloat(glucose_mean),
                 steps: parseInt(steps),
                 sleep_hours: parseFloat(sleep_hours),

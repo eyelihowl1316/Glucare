@@ -2,7 +2,7 @@ import ProfileItem from "./ProfileItem";
 import { FaUser, FaVenusMars, FaCalendar, FaPhone, FaEnvelope } from "react-icons/fa";
 import Button from "../components/Button"
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 import { useEffect, useState } from "react";
 
 export default function ProfileCard() {
@@ -17,7 +17,7 @@ export default function ProfileCard() {
 
         if (!currentUser) return;
 
-        axios.get(`https://nusahealth.infinitelearningstudent.id/api/auth/profile/${currentUser.id}`,
+        api.get(`/api/auth/profile/${currentUser.id}`,
             {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token") || sessionStorage.getItem("token")}`,
