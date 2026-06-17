@@ -36,10 +36,24 @@ const HasilAnalisis = () => {
 
         if (!user || !user.id) return;
 
-        const rawAiData = localStorage.getItem(`aiAnalysisResult_${user.id}`);
-        if (rawAiData) {
+        const loadAiData = async () => {
+            let parsed = null;
+
+            // Coba dari API dulu (Paling update)
             try {
-                const parsed = JSON.parse(rawAiData);
+                const res = await api.get(`/api/ai/result/${user.id}`);
+                parsed = res.data;
+            } catch (err) {
+                console.log("Gagal ambil dari API, mencoba localStorage", err.message);
+                const rawAiData = localStorage.getItem(`aiAnalysisResult_${user.id}`);
+                if (rawAiData) {
+                    try {
+                        parsed = JSON.parse(rawAiData);
+                    } catch(e){}
+                }
+            }
+
+            if (parsed) {
                 const aiRes = parsed.aiResult;
                 const mode = parsed.mode;
                 
@@ -150,10 +164,10 @@ const HasilAnalisis = () => {
                         mode: "clinical"
                     });
                 }
-            } catch (e) {
-                console.error("Gagal membaca data AI:", e);
             }
-        }
+        };
+
+        loadAiData();
     }, []);
 
     const isNormal = data.riskLevel === "Normal";

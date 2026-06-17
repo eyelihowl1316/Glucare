@@ -106,8 +106,8 @@ const predictClinical = async (req, res) => {
             if (err) console.error("[AI Clinical] Gagal simpan ke DB:", err.message);
         });
 
-        // ── Kembalikan response gabungan ──
-        return res.status(200).json({
+        // Simpan hasil prediksi AI ke database (Tabel analysis_results)
+        const finalPayload = {
             mode: "clinical",
             aiResult: aiResult,
             clinicalParams: {
@@ -119,7 +119,21 @@ const predictClinical = async (req, res) => {
                 riwayat_diabetes: riwayat_diabetes || ""
             },
             timestamp: new Date().toISOString()
+        };
+
+        const sqlUpsertAnalysis = `
+            INSERT INTO analysis_results (user_id, mode, result_data)
+            VALUES (?, 'clinical', ?)
+            ON DUPLICATE KEY UPDATE
+                mode = VALUES(mode),
+                result_data = VALUES(result_data)
+        `;
+        db.query(sqlUpsertAnalysis, [user_id, JSON.stringify(finalPayload)], (err) => {
+            if (err) console.error("[AI Clinical] Gagal simpan analysis_results:", err.message);
         });
+
+        // ── Kembalikan response gabungan ──
+        return res.status(200).json(finalPayload);
 
     } catch (error) {
         console.error("[AI Clinical] Error:", error.response?.data || error.message);
@@ -217,13 +231,27 @@ const predictQuestionnaire = async (req, res) => {
             if (err) console.error("[AI Kuesioner] Gagal simpan ke DB:", err.message);
         });
 
-        // ── Kembalikan response gabungan ──
-        return res.status(200).json({
+        // Simpan hasil prediksi AI ke database (Tabel analysis_results)
+        const finalPayload = {
             mode: "questionnaire",
             aiResult: aiResult,
             answers: answers,
             timestamp: new Date().toISOString()
+        };
+
+        const sqlUpsertAnalysis = `
+            INSERT INTO analysis_results (user_id, mode, result_data)
+            VALUES (?, 'questionnaire', ?)
+            ON DUPLICATE KEY UPDATE
+                mode = VALUES(mode),
+                result_data = VALUES(result_data)
+        `;
+        db.query(sqlUpsertAnalysis, [user_id, JSON.stringify(finalPayload)], (err) => {
+            if (err) console.error("[AI Kuesioner] Gagal simpan analysis_results:", err.message);
         });
+
+        // ── Kembalikan response gabungan ──
+        return res.status(200).json(finalPayload);
 
     } catch (error) {
         console.error("[AI Kuesioner] Error:", error.response?.data || error.message);
@@ -234,4 +262,44 @@ const predictQuestionnaire = async (req, res) => {
     }
 };
 
-module.exports = { predictClinical, predictQuestionnaire };
+// GET /api/ai/result/:userId - Mengambil hasil analisis terakhir
+const getLatestAnalysisResult = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        if (!userId) {
+            return res.status(400).json({ message: "User ID diperlukan" });
+        }
+
+        const [results] = await db.promise().query(
+            "SELECT mode, result_data, created_at FROM analysis_results WHERE user_id = ?",
+            [userId]
+        );
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "Belum ada hasil analisis" });
+        }
+
+        const data = results[0];
+        let payload = {};
+        try {
+            payload = typeof data.result_data === 'string' ? JSON.parse(data.result_data) : data.result_data;
+        } catch(e) {
+            payload = data.result_data;
+        }
+
+        return res.status(200).json({
+            mode: data.mode,
+            ...payload,
+            saved_at: data.created_at
+        });
+
+    } catch (error) {
+        console.error("[AI Result] Error:", error.message);
+        return res.status(500).json({
+            message: "Gagal mengambil hasil analisis",
+            error: error.message
+        });
+    }
+};
+
+module.exports = { predictClinical, predictQuestionnaire, getLatestAnalysisResult };

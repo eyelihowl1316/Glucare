@@ -32,7 +32,7 @@ function Dashboard() {
         setCurrentDate(new Date().toLocaleDateString('id-ID', options));
     }, []);
 
-    // Membaca hasil AI yang sudah tersimpan di localStorage
+    // Membaca hasil AI dari Database Server (Sinkron antar perangkat)
     useEffect(() => {
         let user = null;
         try {
@@ -44,17 +44,17 @@ function Dashboard() {
         
         if (!user || !user.id) return;
 
-        const rawAiData = localStorage.getItem(`aiAnalysisResult_${user.id}`);
-        if (rawAiData) {
+        const fetchAiResult = async () => {
             try {
-                const parsed = JSON.parse(rawAiData);
+                const res = await api.get(`/api/ai/result/${user.id}`);
+                const parsed = res.data;
                 const aiRes = parsed.aiResult;
+                
                 if (aiRes) {
                     const proba = aiRes.predict_proba || [0,0,0];
                     // Skor risiko = peluang prediabetes + peluang diabetes
                     const score = Math.round((proba[1] + proba[2]) * 100);
                     
-                    // Gunakan risk_level langsung dari AI
                     const aiRiskLevel = aiRes.risk_level || "Diabetes";
                     
                     let risk = "Risiko Tinggi";
@@ -81,10 +81,48 @@ function Dashboard() {
 
                     setRiskData({ score: finalScore, risk, status });
                 }
-            } catch (e) {
-                console.error("Gagal membaca AI data", e);
+            } catch (err) {
+                console.log("Mencoba fallback ke local storage jika ada");
+                const rawAiData = localStorage.getItem(`aiAnalysisResult_${user.id}`);
+                if (rawAiData) {
+                    try {
+                        const parsed = JSON.parse(rawAiData);
+                        const aiRes = parsed.aiResult;
+                        if (aiRes) {
+                            const proba = aiRes.predict_proba || [0,0,0];
+                            const score = Math.round((proba[1] + proba[2]) * 100);
+                            
+                            const aiRiskLevel = aiRes.risk_level || "Diabetes";
+                            
+                            let risk = "Risiko Tinggi";
+                            let status = "Indikasi Diabetes";
+                            
+                            if (aiRiskLevel === "Normal" || aiRiskLevel === "low") {
+                                risk = "Aman";
+                                status = "Kondisi Normal";
+                            } else if (aiRiskLevel === "Prediabetes" || aiRiskLevel === "medium") {
+                                risk = "Risiko Sedang";
+                                status = "Berisiko Prediabetes";
+                            } else if (aiRiskLevel === "high") {
+                                risk = "Risiko Tinggi";
+                                status = "Indikasi Diabetes";
+                            }
+
+                            let finalScore = score;
+                            if (parsed.mode === "questionnaire") {
+                                if (aiRiskLevel === "low") finalScore = 25;
+                                else if (aiRiskLevel === "medium") finalScore = 55;
+                                else if (aiRiskLevel === "high") finalScore = 85;
+                            }
+
+                            setRiskData({ score: finalScore, risk, status });
+                        }
+                    } catch (e) {}
+                }
             }
-        }
+        };
+
+        fetchAiResult();
     }, []);
 
     useEffect(() => {
