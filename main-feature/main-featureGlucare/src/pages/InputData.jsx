@@ -47,7 +47,7 @@ export default function InputData() {
             );
 
             const response = await axios.post(
-                "http://localhost:5000/api/auth/inputData",
+                "https://nusahealth.infinitelearningstudent.id/api/auth/inputData",
                 {
                     userId: currentUser.id,
                     ...formData,

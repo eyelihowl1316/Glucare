@@ -39,7 +39,7 @@ export default function AuthPage() {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://localhost:5000/api/auth/login", {
+            const response = await axios.post("https://nusahealth.infinitelearningstudent.id/api/auth/login", {
                 email: loginData.email,
                 password: loginData.password,
             });
@@ -69,7 +69,7 @@ export default function AuthPage() {
         if (signupData.password.length < 8) { showError("Password minimal 8 karakter"); return; }
 
         try {
-            const response = await axios.post("http://localhost:5000/api/auth/register", {
+            const response = await axios.post("https://nusahealth.infinitelearningstudent.id/api/auth/register", {
                 fullname: signupData.name,
                 email: signupData.email,
                 password: signupData.password,

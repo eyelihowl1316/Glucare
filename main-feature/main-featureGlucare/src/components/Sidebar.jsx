@@ -28,7 +28,7 @@ function Sidebar() {
 
             if (user && user.id) {
                 try {
-                    const response = await axios.get(`http://localhost:5000/api/auth/profile/${user.id}`,
+                    const response = await axios.get(`https://nusahealth.infinitelearningstudent.id/api/auth/profile/${user.id}`,
                         {
                             headers: {
                                 Authorization: `Bearer ${token}`,
@@ -228,7 +228,7 @@ function Sidebar() {
                 >
                     <img
                         className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                        src={currentUser?.profile_image ? `http://localhost:5000${currentUser.profile_image}` : defaultProfile}
+                        src={currentUser?.profile_image ? `https://nusahealth.infinitelearningstudent.id${currentUser.profile_image}` : defaultProfile}
                         alt="Profile"
                     />
 

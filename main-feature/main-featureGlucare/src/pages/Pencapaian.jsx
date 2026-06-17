@@ -28,7 +28,7 @@ export default function Evaluasi() {
                 const user = JSON.parse(localStorage.getItem("currentUser") || sessionStorage.getItem("currentUser"));
                 if (!user || !user.id) return;
                 
-                const res = await fetch(`http://localhost:5000/api/plan/${user.id}`);
+                const res = await fetch(`https://nusahealth.infinitelearningstudent.id/api/plan/${user.id}`);
                 const data = await res.json();
                 if (res.ok && data.achievements) {
                     setUserAchievements(data.achievements);

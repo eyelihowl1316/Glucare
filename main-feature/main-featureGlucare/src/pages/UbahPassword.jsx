@@ -59,7 +59,7 @@ export default function ChangePassword() {
                 sessionStorage.getItem("currentUser")
             );
 
-            await axios.put(`http://localhost:5000/api/auth/change-password/${currentUser.id}`, {
+            await axios.put(`https://nusahealth.infinitelearningstudent.id/api/auth/change-password/${currentUser.id}`, {
                 oldPassword: form.oldPassword,
                 newPassword: form.newPassword
             });

@@ -96,7 +96,7 @@ function Dashboard() {
             
             if (user && user.id) {
                 try {
-                    const response = await axios.get(`http://localhost:5000/api/auth/profile/${user.id}`);
+                    const response = await axios.get(`https://nusahealth.infinitelearningstudent.id/api/auth/profile/${user.id}`);
                     setCurrentUser(response.data);
                     localStorage.setItem("currentUser", JSON.stringify(response.data));
                 } catch (error) {
@@ -127,7 +127,7 @@ function Dashboard() {
             const walkVal = tasks.langkah ? 30 : 0;
             const nutVal = tasks.nutrisi ? 85 : 0;
 
-            const res = await fetch("http://localhost:5000/api/plan/daily", {
+            const res = await fetch("https://nusahealth.infinitelearningstudent.id/api/plan/daily", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -173,7 +173,7 @@ function Dashboard() {
             );
             if (user && user.id) {
                 try {
-                    const res = await axios.get(`http://localhost:5000/api/plan/${user.id}`);
+                    const res = await axios.get(`https://nusahealth.infinitelearningstudent.id/api/plan/${user.id}`);
                     setIsEnrolled(res.data.enrolled);
                     if (res.data.enrolled) {
                         setDay(res.data.day);
@@ -231,7 +231,7 @@ function Dashboard() {
                     
                     
                     <div className="flex items-center gap-3 mb-6 lg:mb-8">
-                        <img src={currentUser?.profile_image ? `http://localhost:5000${currentUser.profile_image}` : defaultAvatar} className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover flex-shrink-0"/>
+                        <img src={currentUser?.profile_image ? `https://nusahealth.infinitelearningstudent.id${currentUser.profile_image}` : defaultAvatar} className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover flex-shrink-0"/>
                         <div className="min-w-0">
                             <p className="text-sm text-gray-500 hidden sm:block">
                                 {greeting}

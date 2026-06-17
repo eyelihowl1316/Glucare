@@ -4,7 +4,7 @@ import { useSidebar } from "../hooks/useSidebar";
 import { useNavigate } from "react-router-dom";
 import HeaderAnalisis from "../components/HeaderAnalisis";
 
-const API = "http://localhost:5000/api";
+const API = "https://nusahealth.infinitelearningstudent.id/api";
 
 // ── Helper ─────────────────────────────────────────────────────
 const avg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;

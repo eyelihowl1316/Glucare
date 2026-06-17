@@ -31,7 +31,7 @@ export default function EditProfile() {
             sessionStorage.getItem("currentUser")
         );
 
-        axios.get(`http://localhost:5000/api/auth/profile/${currentUser.id}`,
+        axios.get(`https://nusahealth.infinitelearningstudent.id/api/auth/profile/${currentUser.id}`,
             {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token") || sessionStorage.getItem("token")}`,
@@ -50,7 +50,7 @@ export default function EditProfile() {
             });
 
             if(user.profile_image) {
-                setPreview(`http://localhost:5000${user.profile_image}`);
+                setPreview(`https://nusahealth.infinitelearningstudent.id${user.profile_image}`);
             };
         })
         .catch((error) => console.log(error));
@@ -88,7 +88,7 @@ export default function EditProfile() {
                 localStorage.getItem("token") ||
                 sessionStorage.getItem("token");
 
-            const response = await axios.put(`http://localhost:5000/api/auth/update-profile/${currentUser.id}`, 
+            const response = await axios.put(`https://nusahealth.infinitelearningstudent.id/api/auth/update-profile/${currentUser.id}`, 
                 {
                     fullname: form.nama,
                     gender: form.jenisKelamin,
@@ -112,7 +112,7 @@ export default function EditProfile() {
                 const imageData = new FormData();
                 imageData.append("image", selectedFile);
 
-                const photoResponse = await axios.put(`http://localhost:5000/api/auth/upload-photo/${currentUser.id}`,imageData,
+                const photoResponse = await axios.put(`https://nusahealth.infinitelearningstudent.id/api/auth/upload-photo/${currentUser.id}`,imageData,
                         {
                             headers: {
                                 Authorization: `Bearer ${token}`,

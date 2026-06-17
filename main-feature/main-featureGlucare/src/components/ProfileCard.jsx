@@ -17,7 +17,7 @@ export default function ProfileCard() {
 
         if (!currentUser) return;
 
-        axios.get(`http://localhost:5000/api/auth/profile/${currentUser.id}`,
+        axios.get(`https://nusahealth.infinitelearningstudent.id/api/auth/profile/${currentUser.id}`,
             {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token") || sessionStorage.getItem("token")}`,

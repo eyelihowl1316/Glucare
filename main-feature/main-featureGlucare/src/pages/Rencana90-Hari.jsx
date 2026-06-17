@@ -66,7 +66,7 @@ export default function Rencana90Hari() {
     const fetchPlanData = async () => {
         if (!currentUser?.id) return;
         try {
-            const res = await fetch(`http://localhost:5000/api/plan/${currentUser.id}`);
+            const res = await fetch(`https://nusahealth.infinitelearningstudent.id/api/plan/${currentUser.id}`);
             const data = await res.json();
             
             if (res.ok) {
@@ -97,7 +97,7 @@ export default function Rencana90Hari() {
 
                     // Fetch daily history for chart
                     try {
-                        const historyRes = await fetch(`http://localhost:5000/api/plan/tracking/daily/${currentUser.id}`);
+                        const historyRes = await fetch(`https://nusahealth.infinitelearningstudent.id/api/plan/tracking/daily/${currentUser.id}`);
                         if (historyRes.ok) {
                             const historyData = await historyRes.json();
                             setDailyHistory(historyData.data || []);
@@ -132,7 +132,7 @@ export default function Rencana90Hari() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const res = await fetch("http://localhost:5000/api/plan/enroll", {
+            const res = await fetch("https://nusahealth.infinitelearningstudent.id/api/plan/enroll", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -162,7 +162,7 @@ export default function Rencana90Hari() {
             const walkVal = dailyInput.langkah ? (planData.targets?.walking || 30) : 0;
             const nutVal = dailyInput.nutrisi ? 85 : 0;
 
-            const res = await fetch("http://localhost:5000/api/plan/daily", {
+            const res = await fetch("https://nusahealth.infinitelearningstudent.id/api/plan/daily", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -198,7 +198,7 @@ export default function Rencana90Hari() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const res = await fetch("http://localhost:5000/api/plan/glucose", {
+            const res = await fetch("https://nusahealth.infinitelearningstudent.id/api/plan/glucose", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -233,7 +233,7 @@ export default function Rencana90Hari() {
         setIsSubmitting(true);
         try {
             const endpoint = days === 30 ? "assessment30" : "assessment90";
-            const res = await fetch(`http://localhost:5000/api/plan/${endpoint}`, {
+            const res = await fetch(`https://nusahealth.infinitelearningstudent.id/api/plan/${endpoint}`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ user_id: currentUser.id })

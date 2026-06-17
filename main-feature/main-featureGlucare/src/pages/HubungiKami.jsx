@@ -44,7 +44,7 @@ export default function HubungiKami() {
         }
 
         try {
-            const response = await axios.post("http://localhost:5000/api/contact-us/send", formData);
+            const response = await axios.post("https://nusahealth.infinitelearningstudent.id/api/contact-us/send", formData);
 
             showPopup(
                 "Berhasil!",

@@ -57,7 +57,7 @@
 import axios from "axios";
 
 const AI_BASE_URL = "https://itzvynn-glucare-backend.hf.space";
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = "http://43.156.16.175";
 
 export const aiClient = axios.create({
     baseURL: AI_BASE_URL,
