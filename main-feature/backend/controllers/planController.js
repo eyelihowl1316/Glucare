@@ -69,7 +69,11 @@ const getPlanData = async (req, res) => {
         const { user_id } = req.params;
 
         const [users] = await db.promise().query(
-            "SELECT xp, current_streak, best_streak, plan_start_date, sleep_target_hours, walking_target_minutes, nutrition_goal FROM users WHERE id = ?",
+            `SELECT 
+                xp, current_streak, best_streak, plan_start_date, 
+                sleep_target_hours, walking_target_minutes, nutrition_goal,
+                DATEDIFF(DATE_ADD(UTC_TIMESTAMP(), INTERVAL 7 HOUR), plan_start_date) AS diff_days
+             FROM users WHERE id = ?`,
             [user_id]
         );
 
@@ -84,20 +88,8 @@ const getPlanData = async (req, res) => {
             return res.status(200).json({ enrolled: false });
         }
 
-        const now = new Date();
-        // Waktu sekarang di WIB (GMT+7)
-        const wibTime = new Date(now.getTime() + (7 * 60 * 60 * 1000));
-        
-        // start date dari DB biasanya string YYYY-MM-DD
-        // saat di-parse new Date() akan otomatis jadi UTC 00:00:00
-        const startWIB = new Date(user.plan_start_date);
-        
-        // Buat jam jadi 00:00:00 agar hitungan hari akurat (berdasarkan kalender)
-        wibTime.setUTCHours(0, 0, 0, 0);
-        startWIB.setUTCHours(0, 0, 0, 0);
-
-        const diffTime = wibTime.getTime() - startWIB.getTime();
-        const currentDay = Math.min(Math.floor(diffTime / (1000 * 60 * 60 * 24)) + 1, 90);
+        // Hitungan hari otomatis dihitung akurat oleh MySQL dari diff_days
+        const currentDay = Math.min(Math.max(user.diff_days + 1, 1), 90);
 
         // Get Today's tracking
         const [daily] = await db.promise().query(
