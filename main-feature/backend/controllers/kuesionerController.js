@@ -117,14 +117,28 @@ const submitKuesioner = async (req, res) => {
                         return res.status(500).json({ message: "Gagal menyimpan hasil kuesioner" });
                     }
 
-                    return res.status(201).json({
+                    const finalPayload = {
                         assessment_id: result.insertId,
                         risk_level: aiResult.risk_level,
                         cta: cta,
                         mode: "questionnaire",
                         aiResult: aiResult,
                         answers: req.body
-                    });           
+                    };
+
+                    const sqlUpsertAnalysis = `
+                        INSERT INTO analysis_results (user_id, mode, result_data)
+                        VALUES (?, 'questionnaire', ?)
+                        ON DUPLICATE KEY UPDATE
+                            mode = VALUES(mode),
+                            result_data = VALUES(result_data)
+                    `;
+                    
+                    db.query(sqlUpsertAnalysis, [user_id, JSON.stringify(finalPayload)], (errAnalysis) => {
+                        if (errAnalysis) console.error("Gagal simpan analysis_results (Kuesioner):", errAnalysis.message);
+                    });
+
+                    return res.status(201).json(finalPayload);           
                 });
             } catch (error) {
                 console.error("Questionnaire AI Error:", JSON.stringify(error.response?.data, null, 2));
