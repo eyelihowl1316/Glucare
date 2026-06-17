@@ -83,52 +83,52 @@ export default function HubungiKami() {
                 </div>
 
                 {/* Contact Form Card */}
-                <div className="bg-white w-[90%] sm:w-[70%] md:w-[50%] lg:w-[40%] mx-auto mt-[-80px] mb-20 p-6 sm:p-10 rounded-[15px] shadow-lg">
+                <div className="bg-white w-[95%] sm:w-[85%] md:w-[70%] lg:w-[50%] mx-auto mt-[-80px] mb-20 p-6 sm:p-10 rounded-[15px] shadow-lg relative z-10">
                     <h2 className="text-center text-[#0072CE] text-xl sm:text-2xl font-bold mb-[30px]">
                         Kirimkan Kami Pesan
                     </h2>
 
                     <form onSubmit={handleSubmit}>
-                        <div className="flex flex-col sm:flex-row gap-5">
-                            <div className="flex flex-col w-full mb-5">
-                                <label>Name</label>
+                        <div className="flex flex-col sm:flex-row gap-5 mb-5">
+                            <div className="flex flex-col w-full">
+                                <label className="text-sm font-medium text-gray-700 mb-1">Name</label>
                                 <input
                                     type="text"
                                     name="name"
                                     placeholder="Name"
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="p-3 border border-[#ddd] rounded-[10px] outline-none"
+                                    className="p-3 border border-[#ddd] rounded-[10px] outline-none focus:ring-2 focus:ring-[#0072CE] focus:border-transparent transition"
                                 />
                             </div>
 
-                            <div className="flex flex-col w-full mb-5">
-                                <label>Email</label>
+                            <div className="flex flex-col w-full">
+                                <label className="text-sm font-medium text-gray-700 mb-1">Email</label>
                                 <input
                                     type="email"
                                     name="email"
                                     placeholder="Email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="p-3 border border-[#ddd] rounded-[10px] outline-none"
+                                    className="p-3 border border-[#ddd] rounded-[10px] outline-none focus:ring-2 focus:ring-[#0072CE] focus:border-transparent transition"
                                 />
                             </div>
                         </div>
 
-                        <div className="flex flex-col mb-5">
-                            <label>Message</label>
+                        <div className="flex flex-col mb-6">
+                            <label className="text-sm font-medium text-gray-700 mb-1">Message</label>
                             <textarea
                                 name="message"
                                 placeholder="Your Message"
                                 value={formData.message}
                                 onChange={handleChange}
-                                className="p-3 border border-[#ddd] rounded-[10px] outline-none h-[120px] resize-none"
+                                className="p-3 border border-[#ddd] rounded-[10px] outline-none h-[120px] resize-none focus:ring-2 focus:ring-[#0072CE] focus:border-transparent transition"
                             />
                         </div>
 
                         <button
                             type="submit"
-                            className="px-6 py-3 rounded-lg bg-[#0072CE] text-white hover:bg-[#003A68] transition">
+                            className="w-full sm:w-auto px-8 py-3 rounded-lg bg-[#0072CE] text-white font-semibold hover:bg-[#003A68] transition shadow-md">
                             Kirim Pesan
                         </button>
                     </form>
