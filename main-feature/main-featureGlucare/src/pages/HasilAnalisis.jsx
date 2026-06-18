@@ -4,6 +4,7 @@ import Button from "../components/Button";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSidebar } from "../hooks/useSidebar";
 import { useState, useEffect } from "react";
+import api from "../services/api";
 
 const HasilAnalisis = () => {
     const navigate = useNavigate();
@@ -173,9 +174,9 @@ const HasilAnalisis = () => {
     const isNormal = data.riskLevel === "Normal";
     const isPrediabetes = data.riskLevel === "Prediabetes";
     
-    const borderColor = isNormal ? "border-green-300" : isPrediabetes ? "border-yellow-300" : "border-red-300";
-    const textColor = isNormal ? "text-green-700" : isPrediabetes ? "text-yellow-700" : "text-red-700";
-    const bgHeader = isNormal ? "bg-green-100" : isPrediabetes ? "bg-yellow-100" : "bg-red-100";
+    const borderColor = isNormal ? "border-green-300" : isPrediabetes ? "border-orange-300" : "border-red-300";
+    const textColor = isNormal ? "text-green-700" : isPrediabetes ? "text-orange-700" : "text-red-700";
+    const bgHeader = isNormal ? "bg-green-100" : isPrediabetes ? "bg-orange-100" : "bg-red-100";
     const iconStr = isNormal ? "health_and_safety" : isPrediabetes ? "warning" : "emergency";
 
     return (
