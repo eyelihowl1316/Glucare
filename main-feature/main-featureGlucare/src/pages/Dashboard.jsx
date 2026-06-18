@@ -65,8 +65,8 @@ function Dashboard() {
                         status = "Kondisi Normal";
                     } else if (aiRiskLevel === "Prediabetes" || aiRiskLevel === "medium") {
                         risk = "Risiko Sedang";
-                        status = "Berisiko Prediabetes";
-                    } else if (aiRiskLevel === "high") {
+                        status = "Indikasi Prediabetes";
+                    } else if (aiRiskLevel === "high" || aiRiskLevel === "Diabetes") {
                         risk = "Risiko Tinggi";
                         status = "Indikasi Diabetes";
                     }
@@ -102,8 +102,8 @@ function Dashboard() {
                                 status = "Kondisi Normal";
                             } else if (aiRiskLevel === "Prediabetes" || aiRiskLevel === "medium") {
                                 risk = "Risiko Sedang";
-                                status = "Berisiko Prediabetes";
-                            } else if (aiRiskLevel === "high") {
+                                status = "Indikasi Prediabetes";
+                            } else if (aiRiskLevel === "high" || aiRiskLevel === "Diabetes") {
                                 risk = "Risiko Tinggi";
                                 status = "Indikasi Diabetes";
                             }
