@@ -43,18 +43,8 @@ const enrollPlan = async (req, res) => {
             [today, sleep_target_hours, walking_target_minutes, nutrition_goal, user_id]
         );
 
-        // Forward to AI
-        try {
-            await axios.post(`${AI_MONITORING_URL}/enroll`, {
-                user_id: String(user_id),
-                sleep_target_hours: parseFloat(sleep_target_hours),
-                walking_target_minutes: parseInt(walking_target_minutes),
-                nutrition_goal: String(nutrition_goal)
-            });
-        } catch (aiError) {
-            console.error("AI Enroll Error:", aiError.response?.data || aiError.message);
-            // Non-blocking error for AI
-        }
+        // Forward to AI (Obsolete/Removed)
+        // AI Endpoint sudah tidak dipakai lagi
 
         return res.status(200).json({ message: "Berhasil enroll program 90 Hari" });
     } catch (error) {
@@ -199,18 +189,8 @@ const submitDailyTracking = async (req, res) => {
         if (newLevel >= 5 && await unlockAchievement(user_id, "LEVEL_5")) newAchievements.push("LEVEL_5");
         if (newLevel >= 10 && await unlockAchievement(user_id, "LEVEL_10")) newAchievements.push("LEVEL_10");
 
-        // Forward AI
-        try {
-            await axios.post(`${AI_MONITORING_URL}/dailytracking`, {
-                user_id: String(user_id),
-                day: parseInt(day),
-                sleep_hours: parseFloat(sleep_hours),
-                walking_minutes: parseInt(walking_minutes),
-                nutrition_score: parseFloat(nutrition_score)
-            });
-        } catch (aiError) {
-            console.error("AI Daily Tracking Error:", aiError.response?.data || aiError.message);
-        }
+        // Forward AI (Obsolete/Removed)
+        // AI Endpoint sudah tidak dipakai lagi
 
         return res.status(200).json({
             xp_gained: xpGained,
@@ -251,16 +231,9 @@ const submitGlucoseTracking = async (req, res) => {
         const newAchievements = [];
         if (await unlockAchievement(user_id, "GLUCOSE_TRACKER")) newAchievements.push("GLUCOSE_TRACKER");
 
-        // Forward AI
-        try {
-            await axios.post(`${AI_MONITORING_URL}/glucosetracking`, {
-                user_id: String(user_id),
-                day: parseInt(day),
-                glucose_value: parseFloat(glucose_value)
-            });
-        } catch (aiError) {
-            console.error("AI Glucose Tracking Error:", aiError.response?.data || aiError.message);
-        }
+        // Forward AI (Obsolete/Removed)
+        // AI Endpoint sudah tidak dipakai lagi
+
 
         return res.status(200).json({ xp_gained: 50, newAchievements });
     } catch (error) {
@@ -383,12 +356,7 @@ const processAssessment = async (req, res, totalDays) => {
         const endpoint = totalDays === 30 ? "day30assessment" : "day90assessment";
         let aiResponseData = null;
 
-        try {
-            const aiResponse = await axios.post(`${AI_MONITORING_URL}/${endpoint}`, payload);
-            aiResponseData = aiResponse.data;
-        } catch (aiError) {
-            console.error(`AI ${endpoint} Error:`, aiError.response?.data || aiError.message);
-        }
+        // AI Endpoint sudah tidak dipakai lagi
 
         const bonusXp = totalDays === 30 ? 100 : 200;
         await db.promise().query("UPDATE users SET xp = xp + ? WHERE id = ?", [bonusXp, user_id]);
