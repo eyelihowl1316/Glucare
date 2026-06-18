@@ -113,12 +113,29 @@ export default function Rencana90Hari() {
     };
 
     useEffect(() => {
-        const checkAnalysis = () => {
+        const checkAnalysis = async () => {
             const user = getUser();
             if (user && user.id) {
+                // Check local storage first
                 const rawAiData = localStorage.getItem(`aiAnalysisResult_${user.id}`);
                 if (rawAiData) {
                     setHasAnalyzed(true);
+                    return;
+                }
+                
+                // If not in local storage (e.g. analyzed on mobile), check backend
+                try {
+                    const res = await fetch(`${import.meta.env.VITE_API_URL}/api/ai/result/${user.id}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data && data.data) {
+                            setHasAnalyzed(true);
+                            // Simpan ke localstorage agar tidak fetch berulang kali
+                            localStorage.setItem(`aiAnalysisResult_${user.id}`, JSON.stringify(data.data));
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error checking analysis from backend:", e);
                 }
             }
         };
